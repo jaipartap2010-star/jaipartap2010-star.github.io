@@ -7,46 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f8fafc;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .active-tab {
-            background-color: #0f172a !important;
-            color: white !important;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 99px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            border-width: 1px;
-        }
-
-        .glass-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .active-tab { background-color: #0f172a !important; color: white !important; }
+        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px; border-width: 1px; }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .mobile-modal { animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @media (max-width: 768px) { .mobile-modal { animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); } }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 pb-24">
@@ -60,9 +28,14 @@
                     </div>
                     <h1 class="text-lg font-extrabold tracking-tight">SupplyHub Pro</h1>
                 </div>
-                <button onclick="toggleMode()" id="mode-toggle" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition-colors">
-                    <span id="mode-text">Manage Mode</span>
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="openSettings()" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </button>
+                    <button onclick="toggleMode()" id="mode-toggle" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition-colors">
+                        <span id="mode-text">Manage Mode</span>
+                    </button>
+                </div>
             </div>
 
             <div class="relative mb-3">
@@ -70,13 +43,8 @@
                 <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
 
-            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 -mx-1">
-                <button onclick="setCategory('All')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 bg-slate-100" data-cat="All">All Items</button>
-                <button onclick="setCategory('Tech')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 bg-slate-100" data-cat="Tech">Technology</button>
-                <button onclick="setCategory('Art')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 bg-slate-100" data-cat="Art">Art Supplies</button>
-                <button onclick="setCategory('Food')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 bg-slate-100" data-cat="Food">Snacks</button>
-                <button onclick="setCategory('Sports')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold text-slate-500 bg-slate-100" data-cat="Sports">Sports</button>
-            </div>
+            <div id="category-bar" class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 -mx-1">
+                </div>
         </div>
     </header>
 
@@ -84,7 +52,7 @@
         <div id="add-item-bar" class="hidden mb-4">
             <button onclick="openModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-3 flex items-center justify-center gap-2 text-slate-500 font-bold text-sm hover:border-slate-900 hover:text-slate-900 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                Register New Supply or Asset
+                Register New Asset
             </button>
         </div>
 
@@ -94,7 +62,6 @@
                     <tr>
                         <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Item Details</th>
                         <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-center">Status</th>
-                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-center">Unit Cost</th>
                         <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-center">Qty</th>
                         <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-right">Value</th>
                     </tr>
@@ -102,17 +69,42 @@
                 <tbody id="inventory-body-desktop" class="divide-y divide-slate-100"></tbody>
             </table>
         </div>
-
         <div id="inventory-body-mobile" class="md:hidden space-y-3"></div>
     </main>
 
-    <div id="manage-actions" class="hidden fixed bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-md z-[60] flex items-center gap-3">
-        <button onclick="discardChanges()" class="flex-1 bg-white border border-rose-200 text-rose-600 py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">
-            DISCARD
-        </button>
-        <button onclick="toggleMode()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">
-            SAVE CHANGES
-        </button>
+    <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden mobile-modal shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Settings & Backup</h3>
+                <button onclick="closeSettings()" class="p-2 text-slate-400 hover:text-slate-900 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            </div>
+            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto no-scrollbar">
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Cloud Emulation & Data</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="exportData()" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-900 transition-all">
+                            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <span class="text-xs font-bold text-slate-900">Backup Data</span>
+                        </button>
+                        <label class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-900 transition-all cursor-pointer">
+                            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            <span class="text-xs font-bold text-slate-900">Restore Backup</span>
+                            <input type="file" id="import-file" class="hidden" onchange="handleImport(event)">
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Category Manager</h4>
+                    <div id="category-list" class="space-y-2 mb-4">
+                        </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-cat-input" placeholder="New category name..." class="flex-1 bg-slate-100 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
+                        <button onclick="addCategory()" class="bg-slate-900 text-white px-4 py-3 rounded-xl font-bold text-sm">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
@@ -129,21 +121,10 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category</label>
-                        <select id="m-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm">
-                            <option value="Tech">Technology</option>
-                            <option value="Art">Art Supplies</option>
-                            <option value="Food">Snacks</option>
-                            <option value="Sports">Sports</option>
-                        </select>
+                        <select id="m-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></select>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost ($)</label>
-                        <input type="number" id="m-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty</label>
-                        <input type="number" id="m-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm">
-                    </div>
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost ($)</label><input type="number" id="m-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></div>
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty</label><input type="number" id="m-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Type</label>
                         <select id="m-track-type" onchange="toggleFormFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm">
@@ -153,22 +134,13 @@
                     </div>
                 </div>
                 <div id="stock-inputs" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[9px] font-bold text-emerald-600 uppercase block mb-1">Plenty (≥)</label>
-                        <input type="number" id="m-plenty" value="30" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-rose-600 uppercase block mb-1">Low (≤)</label>
-                        <input type="number" id="m-low" value="10" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs">
-                    </div>
+                    <div><label class="text-[9px] font-bold text-emerald-600 uppercase block mb-1">Plenty (≥)</label><input type="number" id="m-plenty" value="30" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs"></div>
+                    <div><label class="text-[9px] font-bold text-rose-600 uppercase block mb-1">Low (≤)</label><input type="number" id="m-low" value="10" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs"></div>
                 </div>
                 <div id="use-inputs" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-100">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Initial Condition</label>
                     <select id="m-initial-cond" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-sm">
-                        <option value="Very Good">Very Good</option>
-                        <option value="Good">Good</option>
-                        <option value="Used">Used</option>
-                        <option value="Need Replaced">Need Replaced</option>
+                        <option value="Very Good">Very Good</option><option value="Good">Good</option><option value="Used">Used</option><option value="Need Replaced">Need Replaced</option>
                     </select>
                 </div>
                 <button onclick="addItem()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl active:scale-95 transition-transform">ADD TO CATALOG</button>
@@ -176,35 +148,33 @@
         </div>
     </div>
 
+    <div id="manage-actions" class="hidden fixed bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-md z-[60] flex items-center gap-3">
+        <button onclick="discardChanges()" class="flex-1 bg-white border border-rose-200 text-rose-600 py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">DISCARD</button>
+        <button onclick="toggleMode()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">SAVE CHANGES</button>
+    </div>
+
     <script>
         const initialInventory = [
             { id: 'T101', name: 'iPad Air (64GB)', cat: 'Tech', qty: 15, cost: 599.00, type: 'use', cond: 'Very Good', icon: '📱' },
-            { id: 'T102', name: 'iPad Pro (128GB)', cat: 'Tech', qty: 5, cost: 799.00, type: 'use', cond: 'Good', icon: '📱' },
             { id: 'T103', name: 'USB-C Adapters', cat: 'Tech', qty: 24, cost: 19.00, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🔌' },
-            { id: 'T104', name: 'Tablet Stands', cat: 'Tech', qty: 12, cost: 25.00, type: 'use', cond: 'Used', icon: '📐' },
-            { id: 'A201', name: 'Printer Paper (Ream)', cat: 'Art', qty: 45, cost: 6.50, type: 'stock', thresholds: { plenty: 50, low: 20 }, icon: '📄' },
-            { id: 'A202', name: 'Acrylic Paint (Set)', cat: 'Art', qty: 22, cost: 28.00, type: 'stock', thresholds: { plenty: 30, low: 5 }, icon: '🎨' },
-            { id: 'A203', name: 'Colored Paper (Bulk)', cat: 'Art', qty: 8, cost: 14.50, type: 'stock', thresholds: { plenty: 40, low: 15 }, icon: '🌈' },
-            { id: 'A204', name: 'Color Pencils (24pk)', cat: 'Art', qty: 32, cost: 8.99, type: 'use', cond: 'Good', icon: '🖍️' },
-            { id: 'A205', name: 'Pipe Cleaners', cat: 'Art', qty: 150, cost: 0.05, type: 'stock', thresholds: { plenty: 200, low: 50 }, icon: '🧶' },
-            { id: 'A206', name: 'Glue Sticks (30pk)', cat: 'Art', qty: 4, cost: 1.25, type: 'stock', thresholds: { plenty: 40, low: 10 }, icon: '🧴' },
-            { id: 'F301', name: 'Granola Bars (Box)', cat: 'Food', qty: 65, cost: 12.00, type: 'stock', thresholds: { plenty: 100, low: 20 }, icon: '🍫' },
-            { id: 'F302', name: 'Doritos (Large)', cat: 'Food', qty: 15, cost: 4.50, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🍿' },
-            { id: 'F303', name: 'Lays Classic Chips', cat: 'Food', qty: 12, cost: 4.50, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🥔' },
-            { id: 'F304', name: 'Bottled Water (24pk)', cat: 'Food', qty: 5, cost: 6.00, type: 'stock', thresholds: { plenty: 20, low: 8 }, icon: '💧' },
-            { id: 'S401', name: 'Rugby Ball', cat: 'Sports', qty: 6, cost: 35.00, type: 'use', cond: 'Need Replaced', icon: '🏉' },
-            { id: 'S402', name: 'Soccer Ball', cat: 'Sports', qty: 14, cost: 25.00, type: 'use', cond: 'Good', icon: '⚽' },
-            { id: 'S403', name: 'Agility Cones', cat: 'Sports', qty: 40, cost: 1.50, type: 'use', cond: 'Used', icon: '⚠️' },
-            { id: 'S404', name: 'Whistle & Lanyard', cat: 'Sports', qty: 10, cost: 4.00, type: 'use', cond: 'Very Good', icon: '📢' }
+            { id: 'A201', name: 'Printer Paper', cat: 'Art', qty: 45, cost: 6.50, type: 'stock', thresholds: { plenty: 50, low: 20 }, icon: '📄' },
+            { id: 'F301', name: 'Granola Bars', cat: 'Food', qty: 65, cost: 12.00, type: 'stock', thresholds: { plenty: 100, low: 20 }, icon: '🍫' }
         ];
 
-        let inventory = JSON.parse(JSON.stringify(initialInventory));
+        let inventory = JSON.parse(localStorage.getItem('sh_inventory')) || initialInventory;
+        let categories = JSON.parse(localStorage.getItem('sh_categories')) || ['Tech', 'Art', 'Food', 'Sports'];
         let backupInventory = null;
         let isManageMode = false;
         let currentCat = 'All';
 
+        function saveToLocal() {
+            localStorage.setItem('sh_inventory', JSON.stringify(inventory));
+            localStorage.setItem('sh_categories', JSON.stringify(categories));
+        }
+
         function toggleMode() {
             if (!isManageMode) backupInventory = JSON.parse(JSON.stringify(inventory));
+            else saveToLocal();
             isManageMode = !isManageMode;
             document.getElementById('mode-text').innerText = isManageMode ? 'Save & Exit' : 'Manage Mode';
             document.getElementById('add-item-bar').classList.toggle('hidden', !isManageMode);
@@ -219,12 +189,64 @@
             }
         }
 
+        function exportData() {
+            const data = JSON.stringify({ inventory, categories }, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SupplyHub_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function handleImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const confirmation = prompt("To protect your current data, we recommend backing up before restoring. Type 'DOWNLOAD' to backup first, or click 'Cancel' to proceed directly with restoring.");
+                
+                if (confirmation === 'DOWNLOAD') {
+                    exportData();
+                }
+
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if (imported.inventory && imported.categories) {
+                        inventory = imported.inventory;
+                        categories = imported.categories;
+                        saveToLocal();
+                        render();
+                        closeSettings();
+                        alert("Database restored successfully!");
+                    }
+                } catch (err) { alert("Invalid backup file."); }
+            };
+            reader.readAsText(file);
+        }
+
+        function addCategory() {
+            const val = document.getElementById('new-cat-input').value.trim();
+            if (val && !categories.includes(val)) {
+                categories.push(val);
+                document.getElementById('new-cat-input').value = '';
+                saveToLocal();
+                render();
+            }
+        }
+
+        function deleteCategory(cat) {
+            const confirmText = prompt(`Are you sure? This will NOT delete items in this category, but they won't show up when filtering. Type 'DELETE' to confirm.`);
+            if (confirmText === 'DELETE') {
+                categories = categories.filter(c => c !== cat);
+                saveToLocal();
+                render();
+            }
+        }
+
         function setCategory(cat) {
             currentCat = cat;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active-tab', btn.dataset.cat === cat);
-                btn.classList.toggle('bg-slate-100', btn.dataset.cat !== cat);
-            });
             render();
         }
 
@@ -237,112 +259,84 @@
         }
 
         function getBadgeStyle(status) {
-            const styles = {
-                'Plenty': 'bg-emerald-100 text-emerald-600 border-emerald-200',
-                'Very Good': 'bg-emerald-100 text-emerald-600 border-emerald-200',
-                'Adequate': 'bg-indigo-100 text-indigo-600 border-indigo-200',
-                'Good': 'bg-indigo-100 text-indigo-600 border-indigo-200',
-                'Low Stock': 'bg-rose-100 text-rose-600 border-rose-200',
-                'Need Replaced': 'bg-rose-100 text-rose-600 border-rose-200',
-                'Used': 'bg-amber-100 text-amber-600 border-amber-200'
-            };
+            const styles = { 'Plenty': 'bg-emerald-100 text-emerald-600', 'Very Good': 'bg-emerald-100 text-emerald-600', 'Adequate': 'bg-indigo-100 text-indigo-600', 'Good': 'bg-indigo-100 text-indigo-600', 'Low Stock': 'bg-rose-100 text-rose-600', 'Need Replaced': 'bg-rose-100 text-rose-600', 'Used': 'bg-amber-100 text-amber-600' };
             return styles[status] || 'bg-slate-100 text-slate-500';
         }
 
-        function updateQty(id, delta) {
-            const item = inventory.find(i => i.id === id);
-            if (item.qty + delta < 0) return;
-            item.qty += delta;
-            render();
-        }
-
-        function removeItem(id) {
-            if (confirm("Delete this asset?")) {
-                inventory = inventory.filter(i => i.id !== id);
-                render();
-            }
-        }
-
         function render() {
-            const desktopBody = document.getElementById('inventory-body-desktop');
-            const mobileContainer = document.getElementById('inventory-body-mobile');
-            const search = document.getElementById('search-input').value.toLowerCase();
-            
-            desktopBody.innerHTML = '';
-            mobileContainer.innerHTML = '';
+            // Update Category Bar
+            const catBar = document.getElementById('category-bar');
+            catBar.innerHTML = `<button onclick="setCategory('All')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold ${currentCat === 'All' ? 'active-tab' : 'text-slate-500 bg-slate-100'}">All</button>`;
+            categories.forEach(c => {
+                catBar.innerHTML += `<button onclick="setCategory('${c}')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold ${currentCat === c ? 'active-tab' : 'text-slate-500 bg-slate-100'}">${c}</button>`;
+            });
 
+            // Update Add Modal Dropdown
+            const mCat = document.getElementById('m-cat');
+            mCat.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            // Update Category Manager List
+            const catList = document.getElementById('category-list');
+            catList.innerHTML = categories.map(c => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span class="text-xs font-bold text-slate-700">${c}</span>
+                    <button onclick="deleteCategory('${c}')" class="text-rose-400 p-1 hover:text-rose-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                </div>
+            `).join('');
+
+            const search = document.getElementById('search-input').value.toLowerCase();
             const filtered = inventory.filter(i => (currentCat === 'All' || i.cat === currentCat) && i.name.toLowerCase().includes(search));
+
+            const desktop = document.getElementById('inventory-body-desktop');
+            const mobile = document.getElementById('inventory-body-mobile');
+            desktop.innerHTML = ''; mobile.innerHTML = '';
 
             filtered.forEach(item => {
                 const status = getStockStatus(item);
                 const style = getBadgeStyle(status);
-                const totalVal = (item.qty * item.cost).toLocaleString(undefined, {minimumFractionDigits: 2});
+                const val = (item.qty * item.cost).toLocaleString();
 
-                // Desktop Row
-                desktopBody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
+                desktop.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-6 py-4 flex items-center gap-3">
+                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-xl border">${item.icon}</div>
+                            <div><p class="font-bold text-slate-800">${item.name}</p><p class="text-[9px] font-bold text-slate-400 uppercase">${item.cat}</p></div>
+                        </td>
+                        <td class="px-6 py-4 text-center"><span class="status-badge ${style}">${status}</span></td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-xl border border-slate-100">${item.icon}</div>
-                                <div>
-                                    <p class="font-bold text-slate-800">${item.name}</p>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.cat} • ${item.id}</p>
-                                </div>
+                            <div class="flex items-center justify-center gap-2">
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100">-</button>` : ''}
+                                <span class="font-black">${item.qty}</span>
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-900 text-white">+</button>` : ''}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="status-badge border ${style}">${status}</span>
-                        </td>
-                        <td class="px-6 py-4 text-center font-medium text-slate-500">$${item.cost.toFixed(2)}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-3">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600">-</button>` : ''}
-                                <span class="text-sm font-black text-slate-900 w-8 text-center">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-900 text-white hover:bg-black flex items-center justify-center font-bold">+</button>` : ''}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            ${isManageMode ? `
-                                <button onclick="removeItem('${item.id}')" class="text-rose-400 hover:text-rose-600 p-1">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            ` : `<p class="font-bold text-slate-700">$${totalVal}</p>`}
-                        </td>
-                    </tr>
-                `;
+                        <td class="px-6 py-4 text-right font-bold">$${val}</td>
+                    </tr>`;
 
-                // Mobile Card
-                mobileContainer.innerHTML += `
+                mobile.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
                         <div class="flex items-start gap-3 mb-3">
-                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl border border-slate-100">${item.icon}</div>
-                            <div class="flex-1">
-                                <p class="font-bold text-slate-900 leading-tight">${item.name}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">${item.cat} • ${item.id}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs font-black text-slate-900">$${totalVal}</p>
-                                <p class="text-[9px] text-slate-400 font-bold">$${item.cost.toFixed(2)}/ea</p>
-                            </div>
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl border">${item.icon}</div>
+                            <div class="flex-1"><p class="font-bold text-slate-900">${item.name}</p><p class="text-[10px] text-slate-400 font-bold uppercase">${item.cat}</p></div>
+                            <p class="text-xs font-black">$${val}</p>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="status-badge ${style}">${status}</span>
                             <div class="flex items-center bg-slate-100 rounded-xl p-1 gap-3">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-bold text-slate-600">-</button>` : ''}
-                                <span class="text-sm font-black text-slate-900 min-w-[20px] text-center">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-slate-900 text-white shadow-sm flex items-center justify-center font-bold">+</button>` : ''}
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-lg bg-white shadow-sm font-bold">-</button>` : ''}
+                                <span class="text-sm font-black">${item.qty}</span>
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-slate-900 text-white shadow-sm font-bold">+</button>` : ''}
                             </div>
                         </div>
-                        ${isManageMode ? `
-                            <button onclick="removeItem('${item.id}')" class="absolute -top-2 -right-2 w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
+                        ${isManageMode ? `<button onclick="removeItem('${item.id}')" class="absolute -top-2 -right-2 w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center border-2 border-white">×</button>` : ''}
+                    </div>`;
             });
         }
 
+        function updateQty(id, d) { const i = inventory.find(x => x.id === id); if (i.qty+d >=0) { i.qty+=d; render(); } }
+        function removeItem(id) { if(confirm("Delete item?")) { inventory = inventory.filter(i=>i.id!==id); render(); } }
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
         function openModal() { document.getElementById('modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
         function toggleFormFields() {
@@ -353,21 +347,22 @@
 
         function addItem() {
             const name = document.getElementById('m-name').value;
-            const type = document.getElementById('m-track-type').value;
-            const qty = parseInt(document.getElementById('m-qty').value) || 0;
-            const cost = parseFloat(document.getElementById('m-cost').value) || 0;
-            const cat = document.getElementById('m-cat').value;
-            if (!name) return alert("Name required");
-            const id = cat[0] + Math.floor(Math.random()*900 + 100);
-            const item = { id, name, cat, qty, cost, type, icon: { Tech: '📱', Art: '🎨', Food: '🍫', Sports: '⚽' }[cat] || '📦' };
-            if (type === 'use') item.cond = document.getElementById('m-initial-cond').value;
+            if(!name) return;
+            const item = {
+                id: 'ID'+Date.now().toString().slice(-4),
+                name, cat: document.getElementById('m-cat').value,
+                qty: parseInt(document.getElementById('m-qty').value)||0,
+                cost: parseFloat(document.getElementById('m-cost').value)||0,
+                type: document.getElementById('m-track-type').value,
+                icon: '📦'
+            };
+            if(item.type==='use') item.cond = document.getElementById('m-initial-cond').value;
             else item.thresholds = { plenty: parseInt(document.getElementById('m-plenty').value), low: parseInt(document.getElementById('m-low').value) };
             inventory.push(item);
-            closeModal();
-            render();
+            closeModal(); render();
         }
 
-        window.onload = () => { setCategory('All'); render(); };
+        window.onload = render;
     </script>
 </body>
 </html>
