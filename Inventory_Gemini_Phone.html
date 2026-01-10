@@ -3,363 +3,662 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SupplyHub Pro | Universal</title>
+    <title>Inventory Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        .active-tab { background-color: #0f172a !important; color: white !important; }
-        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 4px; border-width: 1px; }
         .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @media (max-width: 768px) { .mobile-modal { animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); } }
+        .active-tab { background-color: #0f172a !important; color: white !important; }
+        .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-width: 1px; }
+        .highlight { background-color: #fef08a; padding: 0 2px; border-radius: 2px; }
+        
+        /* Dashboard Box Style */
+        .dash-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1rem; flex: 1; text-align: center; }
+        .num-green { color: #10b981; }
+        .num-blue { color: #3b82f6; }
+        .num-yellow { color: #eab308; }
+
+        @keyframes slideIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .mobile-panel { animation: slideIn 0.3s ease-out; }
     </style>
 </head>
-<body class="min-h-screen text-slate-900 pb-24">
+<body class="min-h-screen text-slate-900 pb-32">
 
-    <header class="sticky top-0 z-50 glass-header border-b border-slate-200 px-4 pt-4 pb-2">
-        <div class="max-w-5xl mx-auto">
+    <header class="sticky top-0 z-40 glass-header border-b border-slate-200 px-4 pt-4 pb-2">
+        <div class="max-w-6xl mx-auto">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-md">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     </div>
-                    <h1 class="text-lg font-extrabold tracking-tight">SupplyHub Pro</h1>
+                    <h1 class="text-lg font-black tracking-tight uppercase">Inventory Management</h1>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openSettings()" class="bg-slate-100 text-slate-600 p-2 rounded-xl hover:bg-slate-200 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <button onclick="openSettings()" class="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200 transition-colors">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </button>
-                    <button onclick="toggleMode()" id="mode-toggle" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition-colors">
-                        <span id="mode-text">Manage Mode</span>
-                    </button>
+                    <button onclick="toggleManageMode()" id="manage-btn" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase shadow-md active:scale-95 transition-all">Manage Mode</button>
                 </div>
             </div>
 
-            <div class="relative mb-3">
-                <input type="text" id="search-input" oninput="render()" placeholder="Search assets..." class="w-full bg-slate-100 border-none rounded-xl py-2.5 px-10 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
-                <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="flex gap-3 mb-4 overflow-x-auto no-scrollbar">
+                <div class="dash-box min-w-[120px]">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Total Value</p>
+                    <p id="stat-cost" class="text-xl font-black num-green">$0</p>
+                </div>
+                <div class="dash-box min-w-[120px]">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Items In Cat</p>
+                    <p id="stat-count" class="text-xl font-black num-blue">0</p>
+                </div>
+                <div class="dash-box min-w-[120px]">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Alerts</p>
+                    <p id="stat-alerts" class="text-xl font-black num-yellow">0</p>
+                </div>
             </div>
 
-            <div id="category-bar" class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 -mx-1">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="relative flex-1">
+                    <input type="text" id="search-box" oninput="render()" placeholder="Search assets..." class="w-full bg-slate-100 border-none rounded-xl py-2.5 px-10 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
+                <button onclick="resetSort()" class="bg-slate-100 text-[10px] font-black uppercase px-3 py-3 rounded-xl text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap">Original Order</button>
+            </div>
+
+            <div id="cat-tabs" class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2"></div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 mt-4">
-        <div id="add-item-bar" class="hidden mb-4">
-            <button onclick="openModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-3 flex items-center justify-center gap-2 text-slate-500 font-bold text-sm hover:border-slate-900 hover:text-slate-900 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                Register New Asset
-            </button>
-        </div>
-
+    <main class="max-w-6xl mx-auto px-4 mt-6">
         <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 border-b border-slate-100">
                     <tr>
-                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Item Details</th>
-                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-center">Status</th>
-                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-center">Qty</th>
-                        <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400 text-right">Value</th>
+                        <th class="px-6 py-4 w-12 hidden manage-ui">
+                            <input type="checkbox" id="master-check" onchange="toggleAllSelection()" class="rounded border-slate-300">
+                        </th>
+                        <th class="px-6 py-4">
+                            <button onclick="setSort('name')" class="flex items-center gap-1 text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">
+                                Item Name <span id="sort-icon-name"></span>
+                            </button>
+                        </th>
+                        <th class="px-6 py-4">
+                            <button onclick="toggleFilterModal('status')" class="flex items-center gap-1 text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">
+                                Status <span id="sort-icon-status"></span> ⚙️
+                            </button>
+                        </th>
+                        <th class="px-6 py-4 text-center">
+                            <button onclick="setSort('qty')" class="flex items-center gap-1 mx-auto text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">
+                                Qty <span id="sort-icon-qty"></span>
+                            </button>
+                        </th>
+                        <th class="px-6 py-4 text-right">
+                            <button onclick="toggleFilterModal('cost')" class="flex items-center gap-1 ml-auto text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">
+                                Value <span id="sort-icon-val"></span> ⚙️
+                            </button>
+                        </th>
                     </tr>
                 </thead>
-                <tbody id="inventory-body-desktop" class="divide-y divide-slate-100"></tbody>
+                <tbody id="inventory-desktop" class="divide-y divide-slate-100"></tbody>
             </table>
         </div>
-        <div id="inventory-body-mobile" class="md:hidden space-y-3"></div>
+
+        <div id="inventory-mobile" class="md:hidden space-y-3"></div>
     </main>
 
-    <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden mobile-modal shadow-2xl">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Settings & Backup</h3>
-                <button onclick="closeSettings()" class="p-2 text-slate-400 hover:text-slate-900 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <div id="bulk-bar" class="hidden fixed bottom-6 left-4 right-4 max-w-lg mx-auto bg-slate-900 text-white rounded-2xl p-4 shadow-2xl z-50 flex items-center justify-between">
+        <span id="bulk-count" class="text-xs font-black uppercase">0 Items Selected</span>
+        <div class="flex gap-2">
+            <button onclick="bulkTransfer()" class="bg-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-600">Transfer</button>
+            <button onclick="bulkDelete()" class="bg-rose-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-rose-500">Delete</button>
+        </div>
+    </div>
+
+    <button onclick="openMobileSortFilter()" class="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center z-40">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+    </button>
+
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-t-[2rem] md:rounded-[2rem] overflow-hidden mobile-panel">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-black uppercase text-xs">Settings & Categories</h3>
+                <button onclick="closeSettings()"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
-            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto no-scrollbar">
+            <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto no-scrollbar">
                 <div>
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Cloud Emulation & Data</h4>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="exportData()" class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-900 transition-all">
-                            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span class="text-xs font-bold text-slate-900">Backup Data</span>
-                        </button>
-                        <label class="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-900 transition-all cursor-pointer">
-                            <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                            <span class="text-xs font-bold text-slate-900">Restore Backup</span>
-                            <input type="file" id="import-file" class="hidden" onchange="handleImport(event)">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Backup Data</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportData()" class="bg-slate-50 border p-4 rounded-2xl text-xs font-bold hover:border-slate-900">Download JSON</button>
+                        <label class="bg-slate-50 border p-4 rounded-2xl text-xs font-bold hover:border-slate-900 text-center cursor-pointer">
+                            Import JSON <input type="file" onchange="importData(event)" class="hidden">
                         </label>
                     </div>
                 </div>
-
                 <div>
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Category Manager</h4>
-                    <div id="category-list" class="space-y-2 mb-4">
-                        </div>
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Category Management</h4>
+                    <div id="cat-manage-list" class="space-y-2 mb-4"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="new-cat-input" placeholder="New category name..." class="flex-1 bg-slate-100 border-none rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
-                        <button onclick="addCategory()" class="bg-slate-900 text-white px-4 py-3 rounded-xl font-bold text-sm">+</button>
+                        <input type="text" id="new-cat-name" placeholder="New category..." class="flex-1 bg-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
+                        <button onclick="addCategory()" class="bg-slate-900 text-white px-6 rounded-xl font-black">+</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden mobile-modal">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Asset Registration</h3>
-                <button onclick="closeModal()" class="p-2 text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <div id="item-modal" class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg rounded-t-[2rem] md:rounded-[2rem] overflow-hidden mobile-panel">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-black uppercase text-xs">Asset Registration</h3>
+                <button onclick="closeItemModal()"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto no-scrollbar">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-3">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Item Name</label>
+                        <input type="text" id="m-name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Emoji</label>
+                        <input type="text" id="m-emoji" maxlength="2" placeholder="📦" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-center text-xl">
+                    </div>
                     <div class="col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Product Name</label>
-                        <input type="text" id="m-name" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
-                    </div>
-                    <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category</label>
-                        <select id="m-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></select>
+                        <select id="m-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm"></select>
                     </div>
-                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Cost ($)</label><input type="number" id="m-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></div>
-                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Qty</label><input type="number" id="m-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm"></div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Type</label>
-                        <select id="m-track-type" onchange="toggleFormFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-sm">
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tracking Type</label>
+                        <select id="m-type" onchange="toggleFormFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
                             <option value="stock">Stock-Based</option>
                             <option value="use">Condition-Based</option>
                         </select>
                     </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Unit Cost ($)</label>
+                        <input type="number" id="m-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Initial Qty</label>
+                        <input type="number" id="m-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                    </div>
                 </div>
-                <div id="stock-inputs" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-3">
-                    <div><label class="text-[9px] font-bold text-emerald-600 uppercase block mb-1">Plenty (≥)</label><input type="number" id="m-plenty" value="30" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs"></div>
-                    <div><label class="text-[9px] font-bold text-rose-600 uppercase block mb-1">Low (≤)</label><input type="number" id="m-low" value="10" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-center text-xs"></div>
+                <div id="stock-fields" class="p-4 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-2 gap-4">
+                    <div><label class="block text-[9px] font-black text-emerald-600 uppercase mb-1">Plenty Threshold</label><input type="number" id="m-plenty" value="20" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs"></div>
+                    <div><label class="block text-[9px] font-black text-rose-600 uppercase mb-1">Low Threshold</label><input type="number" id="m-low" value="5" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs"></div>
                 </div>
-                <div id="use-inputs" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Initial Condition</label>
-                    <select id="m-initial-cond" class="w-full bg-white border border-slate-200 rounded-xl py-3 px-4 text-sm">
+                <div id="use-fields" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Condition</label>
+                    <select id="m-cond" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm">
                         <option value="Very Good">Very Good</option><option value="Good">Good</option><option value="Used">Used</option><option value="Need Replaced">Need Replaced</option>
                     </select>
                 </div>
-                <button onclick="addItem()" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl active:scale-95 transition-transform">ADD TO CATALOG</button>
+                <button onclick="saveItem()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-xl active:scale-95 transition-all">Add to Inventory</button>
             </div>
         </div>
     </div>
 
-    <div id="manage-actions" class="hidden fixed bottom-6 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-full md:max-w-md z-[60] flex items-center gap-3">
-        <button onclick="discardChanges()" class="flex-1 bg-white border border-rose-200 text-rose-600 py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">DISCARD</button>
-        <button onclick="toggleMode()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">SAVE CHANGES</button>
+    <div id="filter-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-6">
+            <h3 id="filter-title" class="font-black uppercase text-xs mb-4">Select Filters</h3>
+            <div id="filter-options" class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-2"></div>
+            <div class="flex gap-2">
+                <button onclick="clearFilters()" class="flex-1 bg-slate-100 py-3 rounded-xl font-bold text-xs uppercase">Clear</button>
+                <button onclick="closeFilterModal()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase">Apply</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const initialInventory = [
-            { id: 'T101', name: 'iPad Air (64GB)', cat: 'Tech', qty: 15, cost: 599.00, type: 'use', cond: 'Very Good', icon: '📱' },
-            { id: 'T103', name: 'USB-C Adapters', cat: 'Tech', qty: 24, cost: 19.00, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🔌' },
-            { id: 'A201', name: 'Printer Paper', cat: 'Art', qty: 45, cost: 6.50, type: 'stock', thresholds: { plenty: 50, low: 20 }, icon: '📄' },
-            { id: 'F301', name: 'Granola Bars', cat: 'Food', qty: 65, cost: 12.00, type: 'stock', thresholds: { plenty: 100, low: 20 }, icon: '🍫' }
+        // --- DATA & STATE ---
+        let inventory = JSON.parse(localStorage.getItem('im_data')) || [
+            { id: '1', name: 'MacBook Pro', cat: 'Tech', emoji: '💻', qty: 12, cost: 1200, type: 'use', cond: 'Very Good' },
+            { id: '2', name: 'Logitech Mouse', cat: 'Tech', emoji: '🖱️', qty: 45, cost: 45, type: 'stock', thresholds: { plenty: 30, low: 10 } },
+            { id: '3', name: 'Drawing Tablets', cat: 'Art', emoji: '🎨', qty: 3, cost: 250, type: 'stock', thresholds: { plenty: 10, low: 5 } }
         ];
-
-        let inventory = JSON.parse(localStorage.getItem('sh_inventory')) || initialInventory;
-        let categories = JSON.parse(localStorage.getItem('sh_categories')) || ['Tech', 'Art', 'Food', 'Sports'];
-        let backupInventory = null;
+        let categories = JSON.parse(localStorage.getItem('im_cats')) || ['Tech', 'Art', 'Snacks', 'Office'];
+        let currentCategory = 'All';
         let isManageMode = false;
-        let currentCat = 'All';
+        let selectedIds = [];
+        let sortState = { key: null, direction: 'asc' }; // asc, desc, null
+        let activeFilters = { status: [], cost: [] };
 
-        function saveToLocal() {
-            localStorage.setItem('sh_inventory', JSON.stringify(inventory));
-            localStorage.setItem('sh_categories', JSON.stringify(categories));
+        // --- CORE FUNCTIONS ---
+        function save() {
+            localStorage.setItem('im_data', JSON.stringify(inventory));
+            localStorage.setItem('im_cats', JSON.stringify(categories));
         }
 
-        function toggleMode() {
-            if (!isManageMode) backupInventory = JSON.parse(JSON.stringify(inventory));
-            else saveToLocal();
+        function toggleManageMode() {
             isManageMode = !isManageMode;
-            document.getElementById('mode-text').innerText = isManageMode ? 'Save & Exit' : 'Manage Mode';
-            document.getElementById('add-item-bar').classList.toggle('hidden', !isManageMode);
-            document.getElementById('manage-actions').classList.toggle('hidden', !isManageMode);
+            selectedIds = [];
+            document.getElementById('manage-btn').innerText = isManageMode ? "Save Changes" : "Manage Mode";
+            document.querySelectorAll('.manage-ui').forEach(el => el.classList.toggle('hidden', !isManageMode));
+            if (!isManageMode) save();
             render();
         }
 
-        function discardChanges() {
-            if (confirm("Discard session changes?")) {
-                inventory = JSON.parse(JSON.stringify(backupInventory));
-                toggleMode();
+        function setSort(key) {
+            if (sortState.key === key) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : (sortState.direction === 'desc' ? null : 'asc');
+            } else {
+                sortState.key = key;
+                sortState.direction = 'asc';
             }
+            render();
         }
 
-        function exportData() {
-            const data = JSON.stringify({ inventory, categories }, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `SupplyHub_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
+        function resetSort() {
+            sortState = { key: null, direction: 'asc' };
+            render();
         }
 
-        function handleImport(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        function getStatus(item) {
+            if (item.type === 'use') return item.cond;
+            if (item.qty >= item.thresholds.plenty) return "Plenty";
+            if (item.qty <= item.thresholds.low) return "Low Stock";
+            return "Adequate";
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const confirmation = prompt("To protect your current data, we recommend backing up before restoring. Type 'DOWNLOAD' to backup first, or click 'Cancel' to proceed directly with restoring.");
-                
-                if (confirmation === 'DOWNLOAD') {
-                    exportData();
-                }
-
-                try {
-                    const imported = JSON.parse(event.target.result);
-                    if (imported.inventory && imported.categories) {
-                        inventory = imported.inventory;
-                        categories = imported.categories;
-                        saveToLocal();
-                        render();
-                        closeSettings();
-                        alert("Database restored successfully!");
-                    }
-                } catch (err) { alert("Invalid backup file."); }
+        function getStatusStyle(status) {
+            const map = {
+                'Plenty': 'bg-emerald-100 text-emerald-600 border-emerald-200',
+                'Very Good': 'bg-emerald-100 text-emerald-600 border-emerald-200',
+                'Adequate': 'bg-blue-100 text-blue-600 border-blue-200',
+                'Good': 'bg-blue-100 text-blue-600 border-blue-200',
+                'Low Stock': 'bg-rose-100 text-rose-600 border-rose-200',
+                'Need Replaced': 'bg-rose-100 text-rose-600 border-rose-200',
+                'Used': 'bg-amber-100 text-amber-600 border-amber-200'
             };
-            reader.readAsText(file);
+            return map[status] || 'bg-slate-100 text-slate-500';
         }
+
+        // --- RENDER LOGIC ---
+        function render() {
+            const query = document.getElementById('search-box').value.toLowerCase();
+            const desktopBody = document.getElementById('inventory-desktop');
+            const mobileBody = document.getElementById('inventory-mobile');
+            
+            // 1. Filter by Category & Search
+            let list = inventory.filter(i => {
+                const matchCat = currentCategory === 'All' || i.cat === currentCategory;
+                const matchSearch = i.name.toLowerCase().includes(query);
+                return matchCat && matchSearch;
+            });
+
+            // 2. Filter by Checkboxes (Multi-select)
+            if (activeFilters.status.length > 0) {
+                list = list.filter(i => activeFilters.status.includes(getStatus(i)));
+            }
+            if (activeFilters.cost.length > 0) {
+                list = list.filter(i => {
+                    const val = i.qty * i.cost;
+                    if (activeFilters.cost.includes('0-100') && val <= 100) return true;
+                    if (activeFilters.cost.includes('100-1000') && val > 100 && val <= 1000) return true;
+                    if (activeFilters.cost.includes('1000+') && val > 1000) return true;
+                    return false;
+                });
+            }
+
+            // 3. Sorting
+            if (sortState.key) {
+                list.sort((a, b) => {
+                    let valA, valB;
+                    if (sortState.key === 'name') { valA = a.name; valB = b.name; }
+                    if (sortState.key === 'qty') { valA = a.qty; valB = b.qty; }
+                    if (sortState.key === 'status') { valA = getStatus(a); valB = getStatus(b); }
+                    if (sortState.key === 'cost') { valA = a.qty * a.cost; valB = b.qty * b.cost; }
+
+                    if (valA < valB) return sortState.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortState.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // 4. Update Stats Dashboard
+            const totalValue = list.reduce((sum, i) => sum + (i.qty * i.cost), 0);
+            const alertsCount = list.filter(i => ['Low Stock', 'Need Replaced'].includes(getStatus(i))).length;
+            document.getElementById('stat-cost').innerText = `$${totalValue.toLocaleString()}`;
+            document.getElementById('stat-count').innerText = list.length;
+            document.getElementById('stat-alerts').innerText = alertsCount;
+
+            // 5. Render Lists
+            desktopBody.innerHTML = '';
+            mobileBody.innerHTML = '';
+            
+            list.forEach(item => {
+                const status = getStatus(item);
+                const style = getStatusStyle(status);
+                const val = (item.qty * item.cost).toLocaleString();
+                const isSelected = selectedIds.includes(item.id);
+                const highlightName = query ? item.name.replace(new RegExp(query, 'gi'), m => `<span class="highlight">${m}</span>`) : item.name;
+
+                // Desktop Row
+                desktopBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 w-12 ${isManageMode ? '' : 'hidden'}">
+                            <input type="checkbox" onchange="toggleSelection('${item.id}')" ${isSelected ? 'checked' : ''} class="rounded border-slate-300">
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">${item.emoji}</span>
+                                <div>
+                                    <p class="font-bold text-slate-800">${highlightName}</p>
+                                    ${isManageMode ? `
+                                        <select onchange="changeItemCat('${item.id}', this.value)" class="text-[9px] font-black uppercase text-slate-400 bg-transparent border-none p-0 outline-none">
+                                            ${categories.map(c => `<option value="${c}" ${c === item.cat ? 'selected' : ''}>${c}</option>`).join('')}
+                                        </select>
+                                    ` : `<p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">${item.cat}</p>`}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4"><span class="status-badge border ${style}">${status}</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 bg-slate-100 rounded flex items-center justify-center font-black">-</button>` : ''}
+                                <span class="font-black text-xs w-6 text-center">${item.qty}</span>
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 bg-slate-900 text-white rounded flex items-center justify-center font-black">+</button>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            ${isManageMode ? `
+                                <button onclick="deleteItem('${item.id}')" class="text-rose-400 hover:text-rose-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            ` : `<p class="font-black text-slate-700">$${val}</p>`}
+                        </td>
+                    </tr>
+                `;
+
+                // Mobile Card
+                mobileBody.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex items-start gap-3">
+                            ${isManageMode ? `<input type="checkbox" onchange="toggleSelection('${item.id}')" ${isSelected ? 'checked' : ''} class="mt-1 rounded border-slate-300">` : ''}
+                            <span class="text-3xl">${item.emoji}</span>
+                            <div class="flex-1">
+                                <p class="font-black text-slate-900 leading-tight">${highlightName}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">${item.cat}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-black text-slate-900">$${val}</p>
+                                <p class="text-[9px] text-slate-400 font-bold">$${item.cost.toFixed(2)} ea</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="status-badge ${style}">${status}</span>
+                            <div class="flex items-center bg-slate-100 rounded-xl p-1 gap-4">
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 bg-white rounded-lg shadow-sm font-black">-</button>` : ''}
+                                <span class="font-black text-sm">${item.qty}</span>
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 bg-slate-900 text-white rounded-lg shadow-sm font-black">+</button>` : ''}
+                            </div>
+                        </div>
+                        ${isManageMode ? `
+                            <button onclick="deleteItem('${item.id}')" class="absolute top-0 right-0 p-3 text-rose-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            renderCategoryTabs();
+            renderBulkBar();
+            updateSortIcons();
+        }
+
+        function renderCategoryTabs() {
+            const tabs = document.getElementById('cat-tabs');
+            tabs.innerHTML = `
+                <button onclick="setCategory('All')" class="px-5 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap transition-all ${currentCategory === 'All' ? 'active-tab shadow-md' : 'bg-slate-100 text-slate-400'}">All Items</button>
+                ${categories.map(c => `
+                    <button onclick="setCategory('${c}')" class="px-5 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap transition-all ${currentCategory === c ? 'active-tab shadow-md' : 'bg-slate-100 text-slate-400'}">${c}</button>
+                `).join('')}
+                ${isManageMode ? `<button onclick="openItemModal()" class="px-5 py-2 rounded-full text-xs font-black uppercase whitespace-nowrap bg-emerald-500 text-white shadow-lg">+ New Asset</button>` : ''}
+            `;
+        }
+
+        function updateSortIcons() {
+            const keys = ['name', 'status', 'qty', 'val'];
+            keys.forEach(k => {
+                const el = document.getElementById(`sort-icon-${k}`);
+                if (!el) return;
+                if (sortState.key === (k === 'val' ? 'cost' : k)) {
+                    el.innerText = sortState.direction === 'asc' ? '↑' : '↓';
+                } else {
+                    el.innerText = '';
+                }
+            });
+        }
+
+        // --- CATEGORY & ITEM LOGIC ---
+        function setCategory(cat) { currentCategory = cat; render(); }
 
         function addCategory() {
-            const val = document.getElementById('new-cat-input').value.trim();
-            if (val && !categories.includes(val)) {
-                categories.push(val);
-                document.getElementById('new-cat-input').value = '';
-                saveToLocal();
-                render();
+            const name = document.getElementById('new-cat-name').value.trim();
+            if (name && !categories.includes(name)) {
+                categories.push(name);
+                document.getElementById('new-cat-name').value = '';
+                save(); renderSettingsList(); render();
             }
         }
 
         function deleteCategory(cat) {
-            const confirmText = prompt(`Are you sure? This will NOT delete items in this category, but they won't show up when filtering. Type 'DELETE' to confirm.`);
-            if (confirmText === 'DELETE') {
+            const check = prompt(`WARNING: Deleting "${cat}" will also delete EVERY ITEM in this category. Type "DELETE" to confirm.`);
+            if (check === 'DELETE') {
+                inventory = inventory.filter(i => i.cat !== cat);
                 categories = categories.filter(c => c !== cat);
-                saveToLocal();
+                if (currentCategory === cat) currentCategory = 'All';
+                save(); renderSettingsList(); render();
+            }
+        }
+
+        function renameCategory(oldName) {
+            const newName = prompt(`Rename "${oldName}" to:`, oldName);
+            if (newName && newName !== oldName) {
+                categories = categories.map(c => c === oldName ? newName : c);
+                inventory = inventory.map(i => {
+                    if (i.cat === oldName) i.cat = newName;
+                    return i;
+                });
+                if (currentCategory === oldName) currentCategory = newName;
+                save(); renderSettingsList(); render();
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm("Permanently delete this item?")) {
+                inventory = inventory.filter(i => i.id !== id);
                 render();
             }
         }
 
-        function setCategory(cat) {
-            currentCat = cat;
+        function updateQty(id, delta) {
+            const item = inventory.find(i => i.id === id);
+            if (item.qty + delta >= 0) { item.qty += delta; render(); }
+        }
+
+        function changeItemCat(id, newCat) {
+            const item = inventory.find(i => i.id === id);
+            item.cat = newCat;
             render();
         }
 
-        function getStockStatus(item) {
-            if (item.type === 'use') return item.cond;
-            const t = item.thresholds;
-            if (item.qty >= t.plenty) return 'Plenty';
-            if (item.qty <= t.low) return 'Low Stock';
-            return 'Adequate';
+        // --- MODALS ---
+        function openSettings() { 
+            document.getElementById('settings-modal').classList.remove('hidden'); 
+            renderSettingsList();
         }
-
-        function getBadgeStyle(status) {
-            const styles = { 'Plenty': 'bg-emerald-100 text-emerald-600', 'Very Good': 'bg-emerald-100 text-emerald-600', 'Adequate': 'bg-indigo-100 text-indigo-600', 'Good': 'bg-indigo-100 text-indigo-600', 'Low Stock': 'bg-rose-100 text-rose-600', 'Need Replaced': 'bg-rose-100 text-rose-600', 'Used': 'bg-amber-100 text-amber-600' };
-            return styles[status] || 'bg-slate-100 text-slate-500';
-        }
-
-        function render() {
-            // Update Category Bar
-            const catBar = document.getElementById('category-bar');
-            catBar.innerHTML = `<button onclick="setCategory('All')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold ${currentCat === 'All' ? 'active-tab' : 'text-slate-500 bg-slate-100'}">All</button>`;
-            categories.forEach(c => {
-                catBar.innerHTML += `<button onclick="setCategory('${c}')" class="filter-btn flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold ${currentCat === c ? 'active-tab' : 'text-slate-500 bg-slate-100'}">${c}</button>`;
-            });
-
-            // Update Add Modal Dropdown
-            const mCat = document.getElementById('m-cat');
-            mCat.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-            // Update Category Manager List
-            const catList = document.getElementById('category-list');
-            catList.innerHTML = categories.map(c => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span class="text-xs font-bold text-slate-700">${c}</span>
-                    <button onclick="deleteCategory('${c}')" class="text-rose-400 p-1 hover:text-rose-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+        
+        function renderSettingsList() {
+            const list = document.getElementById('cat-manage-list');
+            list.innerHTML = categories.map(c => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 border rounded-2xl">
+                    <span class="font-black text-xs uppercase text-slate-800">${c}</span>
+                    <div class="flex gap-2">
+                        <button onclick="renameCategory('${c}')" class="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
+                        <button onclick="deleteCategory('${c}')" class="p-2 text-rose-400 hover:text-rose-600 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
                 </div>
             `).join('');
-
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const filtered = inventory.filter(i => (currentCat === 'All' || i.cat === currentCat) && i.name.toLowerCase().includes(search));
-
-            const desktop = document.getElementById('inventory-body-desktop');
-            const mobile = document.getElementById('inventory-body-mobile');
-            desktop.innerHTML = ''; mobile.innerHTML = '';
-
-            filtered.forEach(item => {
-                const status = getStockStatus(item);
-                const style = getBadgeStyle(status);
-                const val = (item.qty * item.cost).toLocaleString();
-
-                desktop.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-xl border">${item.icon}</div>
-                            <div><p class="font-bold text-slate-800">${item.name}</p><p class="text-[9px] font-bold text-slate-400 uppercase">${item.cat}</p></div>
-                        </td>
-                        <td class="px-6 py-4 text-center"><span class="status-badge ${style}">${status}</span></td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-2">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100">-</button>` : ''}
-                                <span class="font-black">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-900 text-white">+</button>` : ''}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right font-bold">$${val}</td>
-                    </tr>`;
-
-                mobile.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
-                        <div class="flex items-start gap-3 mb-3">
-                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl border">${item.icon}</div>
-                            <div class="flex-1"><p class="font-bold text-slate-900">${item.name}</p><p class="text-[10px] text-slate-400 font-bold uppercase">${item.cat}</p></div>
-                            <p class="text-xs font-black">$${val}</p>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="status-badge ${style}">${status}</span>
-                            <div class="flex items-center bg-slate-100 rounded-xl p-1 gap-3">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-lg bg-white shadow-sm font-bold">-</button>` : ''}
-                                <span class="text-sm font-black">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-slate-900 text-white shadow-sm font-bold">+</button>` : ''}
-                            </div>
-                        </div>
-                        ${isManageMode ? `<button onclick="removeItem('${item.id}')" class="absolute -top-2 -right-2 w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center border-2 border-white">×</button>` : ''}
-                    </div>`;
-            });
         }
 
-        function updateQty(id, d) { const i = inventory.find(x => x.id === id); if (i.qty+d >=0) { i.qty+=d; render(); } }
-        function removeItem(id) { if(confirm("Delete item?")) { inventory = inventory.filter(i=>i.id!==id); render(); } }
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function openItemModal() {
+            document.getElementById('item-modal').classList.remove('hidden');
+            document.getElementById('m-cat').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        function closeItemModal() { document.getElementById('item-modal').classList.add('hidden'); }
         function toggleFormFields() {
-            const type = document.getElementById('m-track-type').value;
-            document.getElementById('stock-inputs').classList.toggle('hidden', type !== 'stock');
-            document.getElementById('use-inputs').classList.toggle('hidden', type !== 'use');
+            const type = document.getElementById('m-type').value;
+            document.getElementById('stock-fields').classList.toggle('hidden', type !== 'stock');
+            document.getElementById('use-fields').classList.toggle('hidden', type !== 'use');
         }
 
-        function addItem() {
+        function saveItem() {
             const name = document.getElementById('m-name').value;
-            if(!name) return;
+            if (!name) return alert("Enter item name");
             const item = {
-                id: 'ID'+Date.now().toString().slice(-4),
-                name, cat: document.getElementById('m-cat').value,
-                qty: parseInt(document.getElementById('m-qty').value)||0,
-                cost: parseFloat(document.getElementById('m-cost').value)||0,
-                type: document.getElementById('m-track-type').value,
-                icon: '📦'
+                id: Date.now().toString(),
+                name,
+                emoji: document.getElementById('m-emoji').value || '📦',
+                cat: document.getElementById('m-cat').value,
+                type: document.getElementById('m-type').value,
+                qty: parseInt(document.getElementById('m-qty').value) || 0,
+                cost: parseFloat(document.getElementById('m-cost').value) || 0,
             };
-            if(item.type==='use') item.cond = document.getElementById('m-initial-cond').value;
-            else item.thresholds = { plenty: parseInt(document.getElementById('m-plenty').value), low: parseInt(document.getElementById('m-low').value) };
+            if (item.type === 'stock') {
+                item.thresholds = { plenty: parseInt(document.getElementById('m-plenty').value), low: parseInt(document.getElementById('m-low').value) };
+            } else {
+                item.cond = document.getElementById('m-cond').value;
+            }
             inventory.push(item);
-            closeModal(); render();
+            save(); closeItemModal(); render();
+        }
+
+        // --- BULK ACTIONS ---
+        function toggleSelection(id) {
+            if (selectedIds.includes(id)) selectedIds = selectedIds.filter(x => x !== id);
+            else selectedIds.push(id);
+            renderBulkBar();
+        }
+
+        function toggleAllSelection() {
+            const master = document.getElementById('master-check').checked;
+            if (master) selectedIds = inventory.map(i => i.id);
+            else selectedIds = [];
+            render();
+        }
+
+        function renderBulkBar() {
+            const bar = document.getElementById('bulk-bar');
+            if (selectedIds.length > 0 && isManageMode) {
+                bar.classList.remove('hidden');
+                document.getElementById('bulk-count').innerText = `${selectedIds.length} Items Selected`;
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function bulkDelete() {
+            const check = prompt(`Delete ${selectedIds.length} items? Type "DELETE" to confirm.`);
+            if (check === 'DELETE') {
+                inventory = inventory.filter(i => !selectedIds.includes(i.id));
+                selectedIds = [];
+                render();
+            }
+        }
+
+        function bulkTransfer() {
+            const target = prompt(`Enter category name to move items to:\n(${categories.join(', ')})`);
+            if (categories.includes(target)) {
+                inventory = inventory.map(i => {
+                    if (selectedIds.includes(i.id)) i.cat = target;
+                    return i;
+                });
+                selectedIds = [];
+                render();
+            } else { alert("Category not found."); }
+        }
+
+        // --- FILTER MODAL LOGIC ---
+        let currentFilterType = null;
+        function toggleFilterModal(type) {
+            currentFilterType = type;
+            const modal = document.getElementById('filter-modal');
+            const title = document.getElementById('filter-title');
+            const options = document.getElementById('filter-options');
+            modal.classList.remove('hidden');
+
+            if (type === 'status') {
+                title.innerText = "Filter by Status";
+                const statuses = ['Plenty', 'Adequate', 'Low Stock', 'Very Good', 'Good', 'Used', 'Need Replaced'];
+                options.innerHTML = statuses.map(s => `
+                    <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <input type="checkbox" onchange="toggleFilterValue('status', '${s}')" ${activeFilters.status.includes(s) ? 'checked' : ''}>
+                        <span class="text-xs font-bold">${s}</span>
+                    </label>
+                `).join('');
+            } else {
+                title.innerText = "Filter by Total Value";
+                const ranges = [['0-100', '$0 - $100'], ['100-1000', '$100 - $1,000'], ['1000+', 'Over $1,000']];
+                options.innerHTML = ranges.map(r => `
+                    <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                        <input type="checkbox" onchange="toggleFilterValue('cost', '${r[0]}')" ${activeFilters.cost.includes(r[0]) ? 'checked' : ''}>
+                        <span class="text-xs font-bold">${r[1]}</span>
+                    </label>
+                `).join('');
+            }
+        }
+
+        function toggleFilterValue(type, val) {
+            if (activeFilters[type].includes(val)) activeFilters[type] = activeFilters[type].filter(x => x !== val);
+            else activeFilters[type].push(val);
+        }
+
+        function clearFilters() { 
+            activeFilters = { status: [], cost: [] }; 
+            render(); 
+            closeFilterModal(); 
+        }
+        function closeFilterModal() { 
+            document.getElementById('filter-modal').classList.add('hidden'); 
+            render(); 
+        }
+
+        function openMobileSortFilter() {
+            // Reusing status filter for simplicity on mobile mobile Sort/Filter
+            toggleFilterModal('status');
+        }
+
+        // --- BACKUP ---
+        function exportData() {
+            const blob = new Blob([JSON.stringify({ inventory, categories }, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Inventory_Backup.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const data = JSON.parse(event.target.result);
+                if (data.inventory && data.categories) {
+                    inventory = data.inventory;
+                    categories = data.categories;
+                    save(); render(); closeSettings();
+                    alert("Import Successful");
+                }
+            };
+            reader.readAsText(file);
         }
 
         window.onload = render;
