@@ -3,23 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Inventory Management</title>
+    <title>Inventory Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
-        .active-tab { background-color: #0f172a !important; color: white !important; }
-        .status-badge { padding: 6px 12px; border-radius: 99px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border-width: 1px; }
-        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-        .dash-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.5rem; flex: 1; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .dash-box:hover { border-color: #94a3b8; transform: translateY(-2px); }
-        .highlight { background-color: #fef08a; font-weight: inherit; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .active-tab {
+            background-color: #0f172a !important;
+            color: white !important;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-width: 1px;
+        }
+
+        /* Large Analytics Boxes */
+        .dash-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+            padding: 2rem 1rem;
+            flex: 1;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .dash-box:active { transform: scale(0.98); }
+        
+        .num-green { color: #10b981; }
+        .num-blue { color: #3b82f6; }
+        .num-yellow { color: #eab308; } /* Golden Yellow */
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        .highlight { background-color: #fef08a; padding: 0 2px; border-radius: 2px; }
+        
+        /* Table Sort Arrows */
+        .sort-arrow { margin-left: 4px; font-style: normal; font-size: 0.8em; opacity: 0.5; }
+        .sort-arrow.active { opacity: 1; color: #0f172a; font-weight: 900; }
+
+        .manage-footer {
+            box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen text-slate-900 pb-32">
+<body class="min-h-screen text-slate-900 pb-44">
 
-    <header class="sticky top-0 z-40 glass-header px-4 pt-6 pb-4">
+    <header class="bg-white border-b border-slate-200 px-4 pt-6 pb-4 sticky top-0 z-40">
         <div class="max-w-5xl mx-auto">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -28,43 +69,40 @@
                     </div>
                     <h1 class="text-xl font-extrabold tracking-tight uppercase">Inventory Management</h1>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="openSettings()" class="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200">
-                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
-                    </button>
-                    <button onclick="toggleManageMode()" id="manage-btn" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase shadow-md active:scale-95 transition-all">Manage Mode</button>
-                </div>
+                <button onclick="toggleManageMode()" id="manage-btn" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase shadow-md active:scale-95 transition-all">Manage Mode</button>
             </div>
 
-            <div id="cat-tabs" class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-4 mb-4"></div>
+            <div id="cat-tabs" class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-4"></div>
 
-            <div class="flex gap-4 mb-6">
-                <div class="dash-box">
-                    <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cost</p>
-                    <p id="stat-cost" class="text-2xl font-black text-emerald-500">$0</p>
+            <div class="flex items-center gap-2 mb-6">
+                <div class="relative flex-1">
+                    <input type="text" id="search-box" oninput="render()" placeholder="Search items..." class="w-full bg-slate-100 border-none rounded-xl py-3 px-10 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <div class="dash-box">
-                    <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Items</p>
-                    <p id="stat-count" class="text-2xl font-black text-blue-500">0</p>
-                </div>
-                <div id="alert-box" onclick="filterByAlerts()" class="dash-box border-2">
-                    <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Alerts</p>
-                    <p id="stat-alerts" class="text-2xl font-black text-yellow-500">0</p>
-                </div>
+                <button onclick="resetSort()" class="bg-slate-100 text-[10px] font-black uppercase px-4 py-3.5 rounded-xl text-slate-500 hover:text-slate-900 border border-transparent hover:border-slate-200 transition-all">Original Order</button>
             </div>
 
-            <div class="relative flex items-center gap-2">
-                <input type="text" id="search-box" oninput="render()" placeholder="Search assets..." class="flex-1 bg-slate-100 border-none rounded-xl py-3 px-10 text-sm focus:ring-2 focus:ring-slate-900 outline-none">
-                <svg class="w-4 h-4 text-slate-400 absolute left-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <button onclick="resetSort()" class="bg-slate-100 text-[10px] font-black uppercase px-4 py-3.5 rounded-xl text-slate-500 hover:text-slate-900">Original Order</button>
+            <div class="flex gap-3 sm:gap-4">
+                <div class="dash-box">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Value</p>
+                    <p id="stat-cost" class="text-2xl font-black num-green">$0</p>
+                </div>
+                <div class="dash-box">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Items</p>
+                    <p id="stat-count" class="text-2xl font-black num-blue">0</p>
+                </div>
+                <div id="alert-box" onclick="toggleAlertFilter()" class="dash-box cursor-pointer hover:bg-slate-200 border-2 border-transparent">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Alerts</p>
+                    <p id="stat-alerts" class="text-2xl font-black num-yellow">0</p>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 mt-6">
+    <main class="max-w-5xl mx-auto px-4 mt-8">
         <div id="add-item-bar" class="hidden mb-6">
-            <button onclick="openItemModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-5 flex items-center justify-center gap-3 text-slate-500 font-bold text-sm hover:border-slate-900 hover:text-slate-900 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+            <button onclick="openItemModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-6 flex items-center justify-center gap-3 text-slate-500 font-bold text-sm hover:border-slate-900 hover:text-slate-900 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                 Register New Asset
             </button>
         </div>
@@ -75,239 +113,341 @@
                     <tr id="table-headers">
                         </tr>
                 </thead>
-                <tbody id="inventory-list" class="divide-y divide-slate-100"></tbody>
+                <tbody id="inventory-list" class="divide-y divide-slate-100">
+                    </tbody>
             </table>
         </div>
     </main>
 
-    <div id="manage-actions" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-4 flex gap-3 z-50">
-        <button onclick="discardChanges()" class="flex-1 bg-white border border-rose-200 text-rose-600 py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">DISCARD ALL</button>
-        <button onclick="toggleManageMode()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl text-sm font-black shadow-xl active:scale-95 transition-transform">SAVE CHANGES</button>
+    <div id="manage-footer" class="hidden fixed bottom-6 left-4 right-4 max-w-lg mx-auto bg-white border border-slate-200 rounded-[2rem] p-4 flex gap-3 z-50 manage-footer">
+        <button onclick="discardAllChanges()" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl text-xs font-black uppercase hover:bg-rose-50 hover:text-rose-600 transition-all">Discard All</button>
+        <button onclick="toggleManageMode()" class="flex-[2] bg-slate-900 text-white py-4 rounded-2xl text-xs font-black uppercase shadow-lg active:scale-95 transition-all">Save Changes</button>
     </div>
 
-    <div id="bulk-bar" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full flex items-center gap-6 shadow-2xl z-50">
-        <span id="bulk-text" class="text-[10px] font-black uppercase tracking-widest">0 SELECTED</span>
-        <div class="flex gap-3">
-            <button onclick="startBulkTransfer()" class="text-[10px] font-black uppercase hover:text-blue-400">Transfer</button>
-            <button onclick="bulkDelete()" class="text-[10px] font-black uppercase hover:text-rose-400">Delete</button>
+    <div id="bulk-fab" class="hidden fixed bottom-28 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full flex items-center gap-6 shadow-2xl z-50">
+        <span id="bulk-count" class="text-[10px] font-black uppercase tracking-widest">0 Selected</span>
+        <div class="flex gap-4">
+            <button onclick="verifyTransfer()" class="text-[10px] font-black uppercase text-blue-400">Transfer</button>
+            <button onclick="bulkDelete()" class="text-[10px] font-black uppercase text-rose-400">Delete</button>
         </div>
     </div>
 
-    <div id="transfer-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 text-center">
-            <h3 class="font-black uppercase text-xs mb-4">Select Target Category</h3>
-            <div id="transfer-list" class="space-y-2 mb-4"></div>
-            <button onclick="closeTransferModal()" class="text-slate-400 font-bold text-xs uppercase">Cancel</button>
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div id="transfer-picker" class="hidden bg-white w-full max-w-xs rounded-[2rem] p-6 shadow-2xl">
+            <h3 class="font-black text-center uppercase text-xs mb-4">Select New Category</h3>
+            <div id="transfer-cat-list" class="space-y-2 mb-4"></div>
+            <button onclick="closeModals()" class="w-full text-[10px] font-black text-slate-400 uppercase py-2">Cancel</button>
         </div>
-    </div>
 
-    <div id="item-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white w-full max-w-lg rounded-[2rem] overflow-hidden">
+        <div id="item-modal" class="hidden bg-white w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h3 class="font-black uppercase text-xs">Asset Registration</h3>
-                <button onclick="closeItemModal()">&times;</button>
+                <h3 class="font-black uppercase text-xs">Register Asset</h3>
+                <button onclick="closeModals()" class="p-2">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div class="grid grid-cols-4 gap-4">
-                    <div class="col-span-3"><label class="text-[10px] font-bold uppercase text-slate-400">Name</label><input id="m-name" type="text" class="w-full bg-slate-100 p-3 rounded-xl"></div>
-                    <div><label class="text-[10px] font-bold uppercase text-slate-400">Emoji</label><input id="m-emoji" type="text" maxlength="2" class="w-full bg-slate-100 p-3 rounded-xl text-center"></div>
-                    <div class="col-span-2"><label class="text-[10px] font-bold uppercase text-slate-400">Category</label><select id="m-cat" class="w-full bg-slate-100 p-3 rounded-xl"></select></div>
-                    <div class="col-span-2"><label class="text-[10px] font-bold uppercase text-slate-400">Qty</label><input id="m-qty" type="number" class="w-full bg-slate-100 p-3 rounded-xl"></div>
+                    <div class="col-span-3">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Item Name</label>
+                        <input type="text" id="m-name" class="w-full bg-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-slate-900">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Emoji</label>
+                        <input type="text" id="m-emoji" maxlength="2" class="w-full bg-slate-100 border-none rounded-xl p-3 text-center text-lg">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Category</label>
+                        <select id="m-cat" class="w-full bg-slate-100 border-none rounded-xl p-3 text-sm"></select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Qty</label>
+                        <input type="number" id="m-qty" class="w-full bg-slate-100 border-none rounded-xl p-3 text-sm">
+                    </div>
                 </div>
-                <button onclick="saveItem()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black uppercase text-xs">Register Asset</button>
+                <button onclick="saveItem()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Add to Inventory</button>
             </div>
         </div>
     </div>
 
     <script>
-        let inventory = JSON.parse(localStorage.getItem('im_data')) || [
-            { id: '1', name: 'MacBook Pro', cat: 'Tech', emoji: '💻', qty: 2, cost: 1200, type: 'stock', thresholds: { plenty: 5, low: 3 } }
+        // Initial Data - 4 Items Per Category
+        let inventory = JSON.parse(localStorage.getItem('inventory_data')) || [
+            // Tech
+            { id: 't1', name: 'MacBook Pro M3', cat: 'Tech', emoji: '💻', qty: 12, cost: 2400, type: 'stock', thresholds: { plenty: 10, low: 3 } },
+            { id: 't2', name: 'iPad Pro 12.9', cat: 'Tech', emoji: '📱', qty: 2, cost: 1100, type: 'stock', thresholds: { plenty: 10, low: 3 } },
+            { id: 't3', name: 'Logitech MX Master', cat: 'Tech', emoji: '🖱️', qty: 25, cost: 99, type: 'stock', thresholds: { plenty: 15, low: 5 } },
+            { id: 't4', name: 'Dell 4K Monitor', cat: 'Tech', emoji: '🖥️', qty: 8, cost: 550, type: 'stock', thresholds: { plenty: 10, low: 2 } },
+            // Art
+            { id: 'a1', name: 'Wacom Cintiq', cat: 'Art', emoji: '🎨', qty: 4, cost: 1500, type: 'use', cond: 'Good' },
+            { id: 'a2', name: 'Acrylic Set', cat: 'Art', emoji: '🖌️', qty: 30, cost: 45, type: 'stock', thresholds: { plenty: 20, low: 5 } },
+            { id: 'a3', name: 'Sketchbook A4', cat: 'Art', emoji: '📔', qty: 1, cost: 15, type: 'stock', thresholds: { plenty: 10, low: 5 } },
+            { id: 'a4', name: 'Easel Stand', cat: 'Art', emoji: '📐', qty: 6, cost: 85, type: 'use', cond: 'Need Replaced' },
+            // Food
+            { id: 'f1', name: 'Granola Bars', cat: 'Food', emoji: '🍫', qty: 100, cost: 1.5, type: 'stock', thresholds: { plenty: 50, low: 10 } },
+            { id: 'f2', name: 'Coffee Pods', cat: 'Food', emoji: '☕', qty: 15, cost: 0.8, type: 'stock', thresholds: { plenty: 100, low: 20 } },
+            { id: 'f3', name: 'Sparkling Water', cat: 'Food', emoji: '🥤', qty: 48, cost: 1.2, type: 'stock', thresholds: { plenty: 24, low: 12 } },
+            { id: 'f4', name: 'Fruit Basket', cat: 'Food', emoji: '🍎', qty: 5, cost: 25, type: 'use', cond: 'Used' }
         ];
-        let categories = JSON.parse(localStorage.getItem('im_cats')) || ['Tech', 'Office', 'Art'];
-        let sessionBackup = null;
-        let isManageMode = false;
+
+        let categories = ['Tech', 'Art', 'Food'];
         let currentCat = 'All';
+        let isManageMode = false;
         let selectedIds = [];
         let sortKey = null;
         let sortDir = 'asc';
+        let alertFilterActive = false;
+        let sessionBackup = null;
 
-        function save() {
-            localStorage.setItem('im_data', JSON.stringify(inventory));
-            localStorage.setItem('im_cats', JSON.stringify(categories));
-        }
+        function save() { localStorage.setItem('inventory_data', JSON.stringify(inventory)); }
 
         function toggleManageMode() {
-            if (!isManageMode) sessionBackup = JSON.parse(JSON.stringify(inventory));
-            else save();
-            
+            if (!isManageMode) {
+                sessionBackup = JSON.parse(JSON.stringify(inventory)); // Snapshot for discard
+            } else {
+                save();
+            }
             isManageMode = !isManageMode;
             document.getElementById('manage-btn').innerText = isManageMode ? "Finish Editing" : "Manage Mode";
+            document.getElementById('manage-footer').classList.toggle('hidden', !isManageMode);
             document.getElementById('add-item-bar').classList.toggle('hidden', !isManageMode);
-            document.getElementById('manage-actions').classList.toggle('hidden', !isManageMode);
             selectedIds = [];
             render();
         }
 
-        function discardChanges() {
-            if (confirm("DISCARD ALL CHANGES?\nThis will revert your current session to your last save.")) {
+        function discardAllChanges() {
+            if (confirm("Discard all edits made in this session?")) {
                 inventory = JSON.parse(JSON.stringify(sessionBackup));
                 toggleManageMode();
             }
         }
 
-        function filterByAlerts() {
-            currentCat = 'All';
-            const alertItems = inventory.filter(i => {
-                const status = getStatus(i);
-                return status === 'Low Stock' || status === 'Need Replaced';
-            });
-            render(alertItems); // Passing specific list override
+        function toggleAlertFilter() {
+            alertFilterActive = !alertFilterActive;
+            document.getElementById('alert-box').classList.toggle('border-yellow-500', alertFilterActive);
+            document.getElementById('alert-box').classList.toggle('bg-yellow-50', alertFilterActive);
+            if (alertFilterActive) {
+                sortKey = 'status';
+                sortDir = 'asc';
+            }
+            render();
         }
 
-        function getStatus(i) {
-            if (i.type === 'use') return i.cond;
-            if (i.qty >= i.thresholds?.plenty) return 'Plenty';
-            if (i.qty <= i.thresholds?.low) return 'Low Stock';
-            return 'Adequate';
+        function setSort(key) {
+            if (sortKey === key) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortKey = key;
+                sortDir = 'asc';
+            }
+            render();
         }
 
-        function render(forcedList = null) {
+        function resetSort() {
+            sortKey = null;
+            alertFilterActive = false;
+            document.getElementById('alert-box').classList.remove('border-yellow-500', 'bg-yellow-50');
+            render();
+        }
+
+        function getStatus(item) {
+            if (item.type === 'use') return item.cond;
+            if (item.qty <= item.thresholds.low) return "Low Stock";
+            if (item.qty >= item.thresholds.plenty) return "Plenty";
+            return "Adequate";
+        }
+
+        function render() {
             const query = document.getElementById('search-box').value.toLowerCase();
-            let list = forcedList || inventory.filter(i => (currentCat === 'All' || i.cat === currentCat));
-            
-            if (query) list = list.filter(i => i.name.toLowerCase().includes(query));
+            let list = inventory.filter(i => (currentCat === 'All' || i.cat === currentCat));
+
+            if (query) {
+                list = list.filter(i => i.name.toLowerCase().includes(query));
+            }
+
+            if (alertFilterActive) {
+                list = list.filter(i => ["Low Stock", "Need Replaced", "Used"].includes(getStatus(i)));
+            }
 
             if (sortKey) {
                 list.sort((a, b) => {
-                    let vA = a[sortKey], vB = b[sortKey];
-                    if (sortKey === 'status') { vA = getStatus(a); vB = getStatus(b); }
-                    if (sortKey === 'val') { vA = a.qty * a.cost; vB = b.qty * b.cost; }
-                    return sortDir === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+                    let valA = (sortKey === 'val') ? a.qty * a.cost : (sortKey === 'status' ? getStatus(a) : a[sortKey]);
+                    let valB = (sortKey === 'val') ? b.qty * b.cost : (sortKey === 'status' ? getStatus(b) : b[sortKey]);
+                    if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+                    return 0;
                 });
             }
 
-            // Update Dash
-            const total = list.reduce((s, i) => s + (i.qty * (i.cost || 0)), 0);
-            const alerts = list.filter(i => ['Low Stock', 'Need Replaced'].includes(getStatus(i))).length;
-            document.getElementById('stat-cost').innerText = `$${total.toLocaleString()}`;
+            // Stats
+            const totalVal = list.reduce((sum, i) => sum + (i.qty * i.cost), 0);
+            const alerts = list.filter(i => ["Low Stock", "Need Replaced", "Used"].includes(getStatus(i))).length;
+            document.getElementById('stat-cost').innerText = `$${totalVal.toLocaleString()}`;
             document.getElementById('stat-count').innerText = list.length;
             document.getElementById('stat-alerts').innerText = alerts;
 
-            // Render Tabs
+            // Tabs
             const tabs = document.getElementById('cat-tabs');
-            tabs.innerHTML = `<button onclick="setCat('All')" class="px-5 py-2 rounded-full text-[11px] font-black uppercase whitespace-nowrap ${currentCat === 'All' ? 'active-tab shadow-md' : 'text-slate-400 bg-slate-100'}">All Items</button>`;
+            tabs.innerHTML = `<button onclick="setCategory('All')" class="px-5 py-2 rounded-full text-[11px] font-black uppercase whitespace-nowrap transition-all ${currentCat === 'All' ? 'active-tab shadow-md' : 'text-slate-400 bg-slate-100'}">All Items</button>`;
             categories.forEach(c => {
-                tabs.innerHTML += `<button onclick="setCat('${c}')" class="px-5 py-2 rounded-full text-[11px] font-black uppercase whitespace-nowrap ${currentCat === c ? 'active-tab shadow-md' : 'text-slate-400 bg-slate-100'}">${c}</button>`;
+                tabs.innerHTML += `<button onclick="setCategory('${c}')" class="px-5 py-2 rounded-full text-[11px] font-black uppercase whitespace-nowrap transition-all ${currentCat === c ? 'active-tab shadow-md' : 'text-slate-400 bg-slate-100'}">${c}</button>`;
             });
 
             // Headers
             const head = document.getElementById('table-headers');
+            const arrow = (key) => `<i class="sort-arrow ${sortKey === key ? 'active' : ''}">${sortKey === key ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</i>`;
             head.innerHTML = `
-                ${isManageMode ? `<th class="px-6 py-4 w-10"><input type="checkbox" onchange="toggleAll(this.checked)"></th>` : ''}
-                <th onclick="setSort('name')" class="px-6 py-4 cursor-pointer text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Name ${sortKey==='name'?(sortDir==='asc'?'↑':'↓'):'↕'}</th>
-                <th onclick="setSort('status')" class="px-6 py-4 cursor-pointer text-center text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Status ${sortKey==='status'?(sortDir==='asc'?'↑':'↓'):'↕'}</th>
-                <th onclick="setSort('qty')" class="px-6 py-4 cursor-pointer text-center text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Qty ${sortKey==='qty'?(sortDir==='asc'?'↑':'↓'):'↕'}</th>
-                <th class="px-6 py-4 text-right text-[10px] font-black uppercase text-slate-400">Value</th>
+                ${isManageMode ? `<th class="px-6 py-4 w-10"><input type="checkbox" onchange="toggleSelectAll(this.checked)"></th>` : ''}
+                <th onclick="setSort('name')" class="px-6 py-4 cursor-pointer text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Item Name ${arrow('name')}</th>
+                <th onclick="setSort('status')" class="px-6 py-4 cursor-pointer text-center text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Status ${arrow('status')}</th>
+                <th onclick="setSort('qty')" class="px-6 py-4 cursor-pointer text-center text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Qty ${arrow('qty')}</th>
+                <th onclick="setSort('val')" class="px-6 py-4 cursor-pointer text-right text-[10px] font-black uppercase text-slate-400 hover:text-slate-900">Value ${arrow('val')}</th>
             `;
 
+            // Rows
             const body = document.getElementById('inventory-list');
             body.innerHTML = '';
-            list.forEach(i => {
-                const status = getStatus(i);
-                const highlightName = query ? i.name.replace(new RegExp(query, 'gi'), m => `<span class="highlight">${m}</span>`) : i.name;
+            list.forEach(item => {
+                const status = getStatus(item);
+                const isAlert = ["Low Stock", "Need Replaced", "Used"].includes(status);
+                const highlightName = query ? item.name.replace(new RegExp(query, 'gi'), m => `<span class="highlight">${m}</span>`) : item.name;
+                
                 body.innerHTML += `
-                    <tr>
-                        ${isManageMode ? `<td class="px-6 py-4"><input type="checkbox" ${selectedIds.includes(i.id)?'checked':''} onchange="toggleSelect('${i.id}')"></td>` : ''}
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <span class="text-xl">${i.emoji}</span>
-                            <div>
-                                <p class="font-bold text-slate-900">${highlightName}</p>
-                                <p class="text-[9px] font-black uppercase text-slate-400">${i.cat}</p>
+                    <tr class="group hover:bg-slate-50 transition-colors">
+                        ${isManageMode ? `<td class="px-6 py-4"><input type="checkbox" ${selectedIds.includes(item.id) ? 'checked' : ''} onchange="toggleSelect('${item.id}')"></td>` : ''}
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">${item.emoji}</span>
+                                <div>
+                                    <p class="font-bold text-slate-900">${highlightName}</p>
+                                    <p class="text-[9px] font-black uppercase text-slate-400">${item.cat}</p>
+                                </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center"><span class="status-badge ${status === 'Low Stock' || status === 'Need Replaced' ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-600'}">${status}</span></td>
                         <td class="px-6 py-4 text-center">
+                            <span class="status-badge ${isAlert ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200'}">${status}</span>
+                        </td>
+                        <td class="px-6 py-4">
                             <div class="flex items-center justify-center gap-2">
-                                ${isManageMode ? `<button onclick="updateQty('${i.id}',-1)" class="w-6 h-6 bg-slate-100 rounded">-</button>` : ''}
-                                <span class="font-black">${i.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${i.id}',1)" class="w-6 h-6 bg-slate-900 text-white rounded">+</button>` : ''}
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100 font-bold">-</button>` : ''}
+                                <span class="text-sm font-black w-6 text-center">${item.qty}</span>
+                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-900 text-white font-bold">+</button>` : ''}
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-right font-black">
-                            ${isManageMode ? `<button onclick="deleteItem('${i.id}')" class="text-rose-400">REMOVE</button>` : `$${(i.qty * (i.cost||0)).toLocaleString()}`}
+                        <td class="px-6 py-4 text-right">
+                            ${isManageMode ? `
+                                <button onclick="removeItem('${item.id}')" class="text-rose-400 hover:text-rose-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            ` : `<p class="font-black">$${(item.qty * item.cost).toLocaleString()}</p>`}
                         </td>
                     </tr>
                 `;
             });
+
             updateBulkUI();
         }
 
-        function updateQty(id, d) { const i = inventory.find(x => x.id === id); if (i.qty+d >=0) i.qty += d; render(); }
-        function setCat(c) { currentCat = c; render(); }
-        function setSort(k) { if(sortKey === k) sortDir = sortDir === 'asc' ? 'desc' : 'asc'; else { sortKey = k; sortDir = 'asc'; } render(); }
-        function resetSort() { sortKey = null; render(); }
-        
+        // Action Logic
+        function setCategory(cat) { currentCat = cat; render(); }
+        function updateQty(id, delta) {
+            const item = inventory.find(i => i.id === id);
+            if (item.qty + delta >= 0) { item.qty += delta; render(); }
+        }
+        function removeItem(id) {
+            if (confirm("Remove this item?")) {
+                inventory = inventory.filter(i => i.id !== id);
+                render();
+            }
+        }
+
+        // Bulk Actions
         function toggleSelect(id) {
-            if(selectedIds.includes(id)) selectedIds = selectedIds.filter(x => x !== id);
+            if (selectedIds.includes(id)) selectedIds = selectedIds.filter(x => x !== id);
             else selectedIds.push(id);
             updateBulkUI();
         }
-        function toggleAll(checked) {
-            if(checked) selectedIds = inventory.map(i => i.id);
+        function toggleSelectAll(checked) {
+            if (checked) selectedIds = inventory.map(i => i.id);
             else selectedIds = [];
             render();
         }
         function updateBulkUI() {
-            const bar = document.getElementById('bulk-bar');
-            bar.classList.toggle('hidden', selectedIds.length === 0 || !isManageMode);
-            document.getElementById('bulk-text').innerText = `${selectedIds.length} SELECTED`;
-        }
-
-        function startBulkTransfer() {
-            const auth = prompt("Type TRANSFER to continue");
-            if(auth === 'TRANSFER') {
-                const modal = document.getElementById('transfer-modal');
-                const list = document.getElementById('transfer-list');
-                list.innerHTML = categories.map(c => `<button onclick="finishTransfer('${c}')" class="w-full p-3 bg-slate-100 rounded-xl font-bold uppercase text-[10px]">${c}</button>`).join('');
-                modal.classList.remove('hidden');
+            const fab = document.getElementById('bulk-fab');
+            if (isManageMode && selectedIds.length > 0) {
+                fab.classList.remove('hidden');
+                document.getElementById('bulk-count').innerText = `${selectedIds.length} Selected`;
+            } else {
+                fab.classList.add('hidden');
             }
         }
-        function finishTransfer(cat) {
-            inventory = inventory.map(i => {
-                if(selectedIds.includes(i.id)) i.cat = cat;
-                return i;
+
+        // Transfer Workflow (New Logic)
+        function verifyTransfer() {
+            const val = prompt("To change the category of these items, please type TRANSFER:");
+            if (val === "TRANSFER") {
+                openTransferPicker();
+            } else if (val !== null) {
+                alert("Incorrect confirmation text.");
+            }
+        }
+
+        function openTransferPicker() {
+            const overlay = document.getElementById('modal-overlay');
+            const picker = document.getElementById('transfer-picker');
+            const list = document.getElementById('transfer-cat-list');
+            overlay.classList.remove('hidden');
+            picker.classList.remove('hidden');
+            list.innerHTML = categories.map(c => `
+                <button onclick="executeTransfer('${c}')" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl font-black uppercase text-[10px] hover:border-slate-900 transition-all">${c}</button>
+            `).join('');
+        }
+
+        function executeTransfer(newCat) {
+            inventory = inventory.map(item => {
+                if (selectedIds.includes(item.id)) item.cat = newCat;
+                return item;
             });
             selectedIds = [];
-            document.getElementById('transfer-modal').classList.add('hidden');
+            closeModals();
             render();
         }
 
         function bulkDelete() {
-            const auth = prompt("Type DELETE to confirm bulk removal");
-            if(auth === 'DELETE') {
+            if (confirm(`Delete ${selectedIds.length} items permanently?`)) {
                 inventory = inventory.filter(i => !selectedIds.includes(i.id));
                 selectedIds = [];
                 render();
             }
         }
 
-        function deleteItem(id) { if(confirm("Are you sure?")) { inventory = inventory.filter(i => i.id !== id); render(); } }
-        function openItemModal() { 
-            document.getElementById('item-modal').classList.remove('hidden'); 
+        // Asset Registration
+        function openItemModal() {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            document.getElementById('item-modal').classList.remove('hidden');
             document.getElementById('m-cat').innerHTML = categories.map(c => `<option>${c}</option>`).join('');
         }
-        function closeItemModal() { document.getElementById('item-modal').classList.add('hidden'); }
+
+        function closeModals() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+            document.getElementById('item-modal').classList.add('hidden');
+            document.getElementById('transfer-picker').classList.add('hidden');
+        }
+
         function saveItem() {
             const name = document.getElementById('m-name').value;
-            if(!name) return;
-            inventory.push({
+            if (!name) return alert("Please enter a name.");
+            const item = {
                 id: Date.now().toString(),
-                name, emoji: document.getElementById('m-emoji').value || '📦',
+                name: name,
+                emoji: document.getElementById('m-emoji').value || '📦',
                 cat: document.getElementById('m-cat').value,
                 qty: parseInt(document.getElementById('m-qty').value) || 0,
-                cost: 0, type: 'stock', thresholds: { plenty: 10, low: 2 }
-            });
-            closeItemModal(); render();
+                cost: 0, // Simplified for this logic
+                type: 'stock',
+                thresholds: { plenty: 10, low: 2 }
+            };
+            inventory.push(item);
+            closeModals();
+            render();
         }
 
         window.onload = render;
