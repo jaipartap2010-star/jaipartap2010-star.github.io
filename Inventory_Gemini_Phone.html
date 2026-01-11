@@ -19,10 +19,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .list-row {
-            transition: all 0.2s ease;
-        }
-
         .list-row:hover {
             background-color: #f8fafc;
         }
@@ -58,6 +54,10 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .highlight {
+            background-color: yellow;
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 pb-32">
@@ -92,34 +92,33 @@
 
             <div class="flex flex-wrap items-center gap-2 overflow-x-auto pb-2" id="category-bar"></div>
 
-            <div id="analytics" class="grid grid-cols-3 gap-4 mt-4"></div>
+            <div class="grid grid-cols-3 gap-4 mt-6 mb-6" id="analytics-bar"></div>
         </div>
     </header>
 
     <main class="max-w-5xl mx-auto px-4 mt-6">
         <div id="add-item-bar" class="hidden mb-6">
-            <button onclick="openModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-4 flex items-center justify-center gap-2 text-slate-500 font-bold hover:border-slate-900 hover:text-slate-900 transition-all group">
+            <button onclick="openAddModal()" class="w-full bg-white border-2 border-dashed border-slate-300 rounded-2xl py-4 flex items-center justify-center gap-2 text-slate-500 font-bold hover:border-slate-900 hover:text-slate-900 transition-all group">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                 Register New Asset
             </button>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm md:table hidden">
+            <div class="overflow-x-auto overflow-visible">
+                <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Item Details</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status / Condition</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Unit Cost</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Quantity</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Total Value</th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 cursor-pointer" onclick="toggleSort('name')">Item Details <span id="sort-name">↕</span></th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center cursor-pointer" onclick="toggleFilter('status')">Status / Condition <span id="sort-status">↕</span></th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center cursor-pointer" onclick="toggleFilter('cost')">Unit Cost <span id="sort-cost">↕</span></th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center cursor-pointer" onclick="toggleSort('qty')">Quantity <span id="sort-qty">↕</span></th>
+                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right cursor-pointer" onclick="toggleSort('value')">Total Value <span id="sort-value">↕</span></th>
                         </tr>
                     </thead>
                     <tbody id="inventory-body" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
-            <div id="inventory-mobile" class="md:hidden space-y-4 p-4"></div>
         </div>
     </main>
 
@@ -134,11 +133,11 @@
     </div>
 
     <!-- Add Item Modal -->
-    <div id="modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
+    <div id="add-modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
             <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                 <h3 class="font-black text-slate-900 uppercase tracking-widest text-sm">Asset Registration</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
+                <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -146,50 +145,51 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Product Name</label>
-                        <input type="text" id="m-name" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        <input type="text" id="add-name" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-slate-900">
                     </div>
                     <div class="col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Emoji Icon (one emoji)</label>
-                        <input type="text" id="m-icon" maxlength="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-slate-900">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Emoji Icon</label>
+                        <input type="text" id="add-icon" maxlength="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none focus:ring-2 focus:ring-slate-900">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category</label>
-                        <select id="m-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none"></select>
+                        <select id="add-cat" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Unit Cost ($)</label>
-                        <input type="number" id="m-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
+                        <input type="number" id="add-cost" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Initial Qty</label>
-                        <input type="number" id="m-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
+                        <input type="number" id="add-qty" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tracking Type</label>
-                        <select id="m-track-type" onchange="toggleFormFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
+                        <select id="add-track-type" onchange="toggleAddFormFields()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-sm outline-none">
                             <option value="stock">Stock-Based</option>
                             <option value="use">Use-Based</option>
                         </select>
                     </div>
                 </div>
 
-                <div id="stock-inputs" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                <div id="add-stock-inputs" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Automatic Thresholds</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-[9px] font-bold text-emerald-600 uppercase block mb-1">Plenty Count (≥)</label>
-                            <input type="number" id="m-plenty" value="30" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center text-xs">
+                            <input type="number" id="add-plenty" value="30" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center text-xs">
                         </div>
                         <div>
                             <label class="text-[9px] font-bold text-rose-600 uppercase block mb-1">Low Stock Count (≤)</label>
-                            <input type="number" id="m-low" value="10" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center text-xs">
+                            <input type="number" id="add-low" value="10" class="w-full bg-white border border-slate-200 rounded-lg p-1 text-center text-xs">
                         </div>
                     </div>
                 </div>
 
-                <div id="use-inputs" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div id="add-use-inputs" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-100">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Condition</label>
-                    <select id="m-initial-cond" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-4 text-sm">
+                    <select id="add-initial-cond" class="w-full bg-white border border-slate-200 rounded-xl py-2 px-4 text-sm">
                         <option value="Very Good">Very Good</option>
                         <option value="Good">Good</option>
                         <option value="Used">Used</option>
@@ -197,19 +197,21 @@
                     </select>
                 </div>
 
-                <button onclick="addItem()" class="w-full bg-slate-900 text-white font-bold py-3 rounded-2xl shadow-xl hover:bg-black transition-all">Add to Catalog</button>
+                <button onclick="addNewItem()" class="w-full bg-slate-900 text-white font-bold py-3 rounded-2xl shadow-xl hover:bg-black transition-all">Add to Catalog</button>
             </div>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-lg rounded-t-[2.5rem] md:rounded-[2rem] overflow-hidden shadow-2xl">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="font-black text-slate-900 uppercase tracking-widest text-xs">Settings & Backup</h3>
-                <button onclick="closeSettings()" class="p-2 text-slate-400 hover:text-slate-900 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center modal-overlay p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-sm">Settings & Backup</h3>
+                <button onclick="closeSettings()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <div class="p-6 space-y-6 max-h-[80vh] overflow-y-auto no-scrollbar">
+            <div class="p-6 space-y-4">
                 <div>
                     <h4 class="text-[10px] font-black text-slate-400 uppercase mb-3">Data Backup</h4>
                     <div class="grid grid-cols-2 gap-3">
@@ -237,24 +239,68 @@
         </div>
     </div>
 
+    <!-- Filter Popover -->
+    <div id="filter-popover" class="hidden popover absolute z-[70] bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl min-w-[200px]">
+        <!-- Content dynamically set -->
+    </div>
+
+    <!-- Bulk Action Modal -->
+    <div id="bulk-modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-sm">Bulk Actions</h3>
+                <button onclick="closeBulkModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <button onclick="promptBulkDelete()" class="w-full bg-rose-600 text-white font-bold py-3 rounded-2xl shadow-xl hover:bg-rose-700 transition-all">Delete Selected</button>
+                <button onclick="promptBulkTransfer()" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-2xl shadow-xl hover:bg-indigo-700 transition-all">Transfer Selected</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Select Modal -->
+    <div id="transfer-select-modal" class="hidden fixed inset-0 z-[100] modal-overlay flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-black text-slate-900 uppercase tracking-widest text-sm">Select Target Category</h3>
+                <button onclick="closeTransferSelect()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4" id="transfer-cat-list">
+                <!-- Dynamic categories -->
+            </div>
+        </div>
+    </div>
+
     <script>
         const initialInventory = [
-            { id: 'T101', name: 'iPad Air (64GB)', cat: 'Tech', qty: 15, cost: 599.00, type: 'use', cond: 'Very Good', icon: '📱', createdAt: 1 },
-            { id: 'T102', name: 'iPad Pro (128GB)', cat: 'Tech', qty: 5, cost: 799.00, type: 'use', cond: 'Good', icon: '📱', createdAt: 2 },
-            { id: 'T103', name: 'USB-C Adapters', cat: 'Tech', qty: 24, cost: 19.00, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🔌', createdAt: 3 },
-            { id: 'T104', name: 'Tablet Stands', cat: 'Tech', qty: 12, cost: 25.00, type: 'use', cond: 'Used', icon: '📐', createdAt: 4 },
-            { id: 'A201', name: 'Printer Paper (Ream)', cat: 'Art', qty: 45, cost: 6.50, type: 'stock', thresholds: { plenty: 50, low: 20 }, icon: '📄', createdAt: 5 },
-            { id: 'A202', name: 'Acrylic Paint (Set)', cat: 'Art', qty: 22, cost: 28.00, type: 'stock', thresholds: { plenty: 30, low: 5 }, icon: '🎨', createdAt: 6 },
-            { id: 'A203', name: 'Colored Paper (Bulk)', cat: 'Art', qty: 8, cost: 14.50, type: 'stock', thresholds: { plenty: 40, low: 15 }, icon: '🌈', createdAt: 7 },
-            { id: 'A204', name: 'Color Pencils (24pk)', cat: 'Art', qty: 32, cost: 8.99, type: 'use', cond: 'Good', icon: '🖍️', createdAt: 8 },
-            { id: 'F301', name: 'Granola Bars (Box)', cat: 'Food', qty: 65, cost: 12.00, type: 'stock', thresholds: { plenty: 100, low: 20 }, icon: '🍫', createdAt: 9 },
-            { id: 'F302', name: 'Doritos (Large)', cat: 'Food', qty: 15, cost: 4.50, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🍿', createdAt: 10 },
-            { id: 'F303', name: 'Lays Classic Chips', cat: 'Food', qty: 12, cost: 4.50, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🥔', createdAt: 11 },
-            { id: 'F304', name: 'Bottled Water (24pk)', cat: 'Food', qty: 5, cost: 6.00, type: 'stock', thresholds: { plenty: 20, low: 8 }, icon: '💧', createdAt: 12 },
-            { id: 'S401', name: 'Rugby Ball', cat: 'Sports', qty: 6, cost: 35.00, type: 'use', cond: 'Need Replaced', icon: '🏉', createdAt: 13 },
-            { id: 'S402', name: 'Soccer Ball', cat: 'Sports', qty: 14, cost: 25.00, type: 'use', cond: 'Good', icon: '⚽', createdAt: 14 },
-            { id: 'S403', name: 'Agility Cones', cat: 'Sports', qty: 40, cost: 1.50, type: 'use', cond: 'Used', icon: '⚠️', createdAt: 15 },
-            { id: 'S404', name: 'Whistle & Lanyard', cat: 'Sports', qty: 10, cost: 4.00, type: 'use', cond: 'Very Good', icon: '📢', createdAt: 16 }
+            // Tech (4+)
+            { id: 'T001', name: 'Laptop', cat: 'Tech', qty: 10, cost: 1200, type: 'use', cond: 'Very Good', icon: '💻', createdAt: Date.now() - 100000 },
+            { id: 'T002', name: 'Monitor', cat: 'Tech', qty: 15, cost: 200, type: 'stock', thresholds: { plenty: 20, low: 5 }, icon: '🖥️', createdAt: Date.now() - 90000 },
+            { id: 'T003', name: 'Keyboard', cat: 'Tech', qty: 25, cost: 50, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '⌨️', createdAt: Date.now() - 80000 },
+            { id: 'T004', name: 'Mouse', cat: 'Tech', qty: 30, cost: 30, type: 'use', cond: 'Good', icon: '🖱️', createdAt: Date.now() - 70000 },
+            { id: 'T005', name: 'Printer', cat: 'Tech', qty: 5, cost: 150, type: 'use', cond: 'Used', icon: '🖨️', createdAt: Date.now() - 60000 },
+            // Art (4+)
+            { id: 'A001', name: 'Paint Brushes', cat: 'Art', qty: 50, cost: 5, type: 'stock', thresholds: { plenty: 60, low: 20 }, icon: '🖌️', createdAt: Date.now() - 50000 },
+            { id: 'A002', name: 'Canvas', cat: 'Art', qty: 20, cost: 10, type: 'stock', thresholds: { plenty: 30, low: 10 }, icon: '🎨', createdAt: Date.now() - 40000 },
+            { id: 'A003', name: 'Sketchbook', cat: 'Art', qty: 40, cost: 8, type: 'use', cond: 'Very Good', icon: '📓', createdAt: Date.now() - 30000 },
+            { id: 'A004', name: 'Pencils', cat: 'Art', qty: 100, cost: 1, type: 'stock', thresholds: { plenty: 120, low: 40 }, icon: '✏️', createdAt: Date.now() - 20000 },
+            { id: 'A005', name: 'Watercolors', cat: 'Art', qty: 15, cost: 25, type: 'use', cond: 'Good', icon: '🖼️', createdAt: Date.now() - 10000 },
+            // Food (4+)
+            { id: 'F001', name: 'Apples', cat: 'Food', qty: 50, cost: 1, type: 'stock', thresholds: { plenty: 60, low: 20 }, icon: '🍎', createdAt: Date.now() - 5000 },
+            { id: 'F002', name: 'Bread', cat: 'Food', qty: 30, cost: 3, type: 'stock', thresholds: { plenty: 40, low: 10 }, icon: '🍞', createdAt: Date.now() - 4000 },
+            { id: 'F003', name: 'Cheese', cat: 'Food', qty: 20, cost: 5, type: 'use', cond: 'Very Good', icon: '🧀', createdAt: Date.now() - 3000 },
+            { id: 'F004', name: 'Milk', cat: 'Food', qty: 40, cost: 2, type: 'stock', thresholds: { plenty: 50, low: 15 }, icon: '🥛', createdAt: Date.now() - 2000 },
+            { id: 'F005', name: 'Cookies', cat: 'Food', qty: 100, cost: 0.5, type: 'stock', thresholds: { plenty: 120, low: 30 }, icon: '🍪', createdAt: Date.now() - 1000 },
+            // Sports (4+)
+            { id: 'S001', name: 'Soccer Ball', cat: 'Sports', qty: 10, cost: 20, type: 'use', cond: 'Good', icon: '⚽', createdAt: Date.now() - 500 },
+            { id: 'S002', name: 'Basketball', cat: 'Sports', qty: 15, cost: 25, type: 'use', cond: 'Used', icon: '🏀', createdAt: Date.now() - 400 },
+            { id: 'S003', name: 'Tennis Racket', cat: 'Sports', qty: 8, cost: 50, type: 'use', cond: 'Very Good', icon: '🎾', createdAt: Date.now() - 300 },
+            { id: 'S004', name: 'Gym Weights', cat: 'Sports', qty: 5, cost: 100, type: 'stock', thresholds: { plenty: 10, low: 2 }, icon: '🏋️', createdAt: Date.now() - 200 },
+            { id: 'S005', name: 'Yoga Mat', cat: 'Sports', qty: 20, cost: 15, type: 'use', cond: 'Need Replaced', icon: '🧘', createdAt: Date.now() - 100 }
         ];
 
         let inventory = JSON.parse(localStorage.getItem('inventory')) || initialInventory;
@@ -262,8 +308,12 @@
         let backupInventory = null;
         let isManageMode = false;
         let currentCat = 'All';
-        let sortKey = 'original';
+        let searchTerm = '';
+        let sortKey = 'createdAt';
         let sortDir = 'asc';
+        let filterStatus = [];
+        let filterPrice = [];
+        let selectedItems = [];
 
         function saveToLocal() {
             localStorage.setItem('inventory', JSON.stringify(inventory));
@@ -280,30 +330,136 @@
             document.getElementById('mode-text').innerText = isManageMode ? 'Exit & Save' : 'Manage Mode';
             document.getElementById('add-item-bar').classList.toggle('hidden', !isManageMode);
             document.getElementById('manage-actions').classList.toggle('hidden', !isManageMode);
+            selectedItems = [];
             render();
         }
 
         function discardChanges() {
-            if (confirm("Discard all changes made in this session?")) {
-                inventory = JSON.parse(JSON.stringify(backupInventory));
+            if (confirm("Discard all changes?")) {
+                inventory = backupInventory ? JSON.parse(JSON.stringify(backupInventory)) : initialInventory;
                 toggleMode();
             }
         }
 
-        function toggleFormFields() {
-            const type = document.getElementById('m-track-type').value;
-            document.getElementById('stock-inputs').classList.toggle('hidden', type !== 'stock');
-            document.getElementById('use-inputs').classList.toggle('hidden', type !== 'use');
+        function toggleAddFormFields() {
+            const type = document.getElementById('add-track-type').value;
+            document.getElementById('add-stock-inputs').classList.toggle('hidden', type !== 'stock');
+            document.getElementById('add-use-inputs').classList.toggle('hidden', type !== 'use');
         }
 
-        function setCategory(cat) {
-            currentCat = cat;
+        function openAddModal() {
+            document.getElementById('add-cat').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        function addNewItem() {
+            const name = document.getElementById('add-name').value;
+            if (!name) return alert("Name required");
+            const icon = document.getElementById('add-icon').value || '📦';
+            const cat = document.getElementById('add-cat').value;
+            const cost = parseFloat(document.getElementById('add-cost').value) || 0;
+            const qty = parseInt(document.getElementById('add-qty').value) || 0;
+            const type = document.getElementById('add-track-type').value;
+            const catPrefix = cat[0];
+            const maxId = inventory.filter(i => i.id.startsWith(catPrefix)).reduce((max, i) => Math.max(max, parseInt(i.id.slice(1))), 0);
+            const id = catPrefix + (maxId + 1).toString().padStart(3, '0');
+            const item = { id, name, cat, cost, qty, type, icon, createdAt: Date.now() };
+            if (type === 'use') item.cond = document.getElementById('add-initial-cond').value;
+            else item.thresholds = { plenty: parseInt(document.getElementById('add-plenty').value), low: parseInt(document.getElementById('add-low').value) };
+            inventory.push(item);
+            saveToLocal();
+            closeAddModal();
             render();
+        }
+
+        function openSettings() {
+            const catList = document.getElementById('category-list');
+            catList.innerHTML = categories.map(c => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+                    <span class="text-xs font-bold text-slate-700">${c}</span>
+                    <div class="flex gap-2">
+                        <button onclick="renameCategory('${c}')" class="text-indigo-600 hover:text-indigo-800">Rename</button>
+                        <button onclick="deleteCategory('${c}')" class="text-rose-400 hover:text-rose-600">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function addCategory() {
+            const val = document.getElementById('new-cat-input').value.trim();
+            if (val && !categories.includes(val)) {
+                categories.push(val);
+                document.getElementById('new-cat-input').value = '';
+                saveToLocal();
+                openSettings(); // Refresh list
+                render();
+            }
+        }
+
+        function renameCategory(oldCat) {
+            const newCat = prompt("New name for category:", oldCat);
+            if (newCat && newCat !== oldCat && !categories.includes(newCat)) {
+                categories = categories.map(c => c === oldCat ? newCat : c);
+                inventory.forEach(i => { if (i.cat === oldCat) i.cat = newCat; });
+                saveToLocal();
+                openSettings(); // Refresh
+                render();
+            }
+        }
+
+        function deleteCategory(cat) {
+            const confirm = prompt(`Delete "${cat}" and all items in it? Type DELETE to confirm.`);
+            if (confirm === 'DELETE') {
+                categories = categories.filter(c => c !== cat);
+                inventory = inventory.filter(i => i.cat !== cat);
+                saveToLocal();
+                openSettings(); // Refresh
+                render();
+            }
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify({ inventory, categories });
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory_backup.json';
+            a.click();
+        }
+
+        function handleImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const confirm = prompt("Would you like to backup current data first? Type DOWNLOAD or Cancel.");
+                if (confirm === 'DOWNLOAD') exportData();
+                try {
+                    const data = JSON.parse(event.target.result);
+                    inventory = data.inventory;
+                    categories = data.categories;
+                    saveToLocal();
+                    render();
+                } catch (err) {
+                    alert("Invalid file");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function getStockStatus(item) {
             if (item.type === 'use') return item.cond;
-            const t = item.thresholds;
+            const t = item.thresholds || { plenty: 30, low: 10 };
             if (item.qty >= t.plenty) return 'Plenty';
             if (item.qty <= t.low) return 'Low Stock';
             return 'Adequate';
@@ -322,283 +478,262 @@
             return styles[status] || 'bg-slate-100 text-slate-500';
         }
 
-        function openEditStatus(id, event) {
-            if (!isManageMode) return;
-            // popover logic from original code (omitted for brevity, but it works as in debugged version)
+        function toggleSort(key) {
+            if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            else {
+                sortKey = key;
+                sortDir = 'asc';
+            }
+            updateSortIndicators();
+            render();
+        }
+
+        function updateSortIndicators() {
+            const indicators = {
+                name: document.getElementById('sort-name'),
+                status: document.getElementById('sort-status'),
+                cost: document.getElementById('sort-cost'),
+                qty: document.getElementById('sort-qty'),
+                value: document.getElementById('sort-value')
+            };
+            Object.keys(indicators).forEach(k => indicators[k].textContent = '↕');
+            if (sortKey !== 'createdAt') indicators[sortKey].textContent = sortDir === 'asc' ? '↑' : '↓';
+        }
+
+        function resetSort() {
+            sortKey = 'createdAt';
+            sortDir = 'asc';
+            updateSortIndicators();
+            render();
+        }
+
+        function toggleFilter(type) {
+            const popover = document.getElementById('filter-popover');
+            popover.classList.toggle('hidden');
+            if (type === 'status') {
+                popover.innerHTML = `
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Select Statuses</p>
+                    ${['Plenty', 'Very Good', 'Adequate', 'Good', 'Used', 'Low Stock', 'Need Replaced'].map(s => `
+                        <label class="block text-xs"><input type="checkbox" value="${s}" ${filterStatus.includes(s) ? 'checked' : ''} onchange="updateFilter('status', this)"> ${s}</label>
+                    `).join('')}
+                `;
+            } else if (type === 'cost') {
+                popover.innerHTML = `
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Select Price Ranges</p>
+                    ${['0-10', '10-100', '100-500', '500+'].map(r => `
+                        <label class="block text-xs"><input type="checkbox" value="${r}" ${filterPrice.includes(r) ? 'checked' : ''} onchange="updateFilter('price', this)"> $${r}</label>
+                    `).join('')}
+                `;
+            }
+            // Position popover (simplified)
+            popover.style.top = '100px'; // Adjust as needed
+            popover.style.left = '100px';
+        }
+
+        function updateFilter(type, checkbox) {
+            if (type === 'status') {
+                if (checkbox.checked) filterStatus.push(checkbox.value);
+                else filterStatus = filterStatus.filter(s => s !== checkbox.value);
+            } else if (type === 'price') {
+                if (checkbox.checked) filterPrice.push(checkbox.value);
+                else filterPrice = filterPrice.filter(p => p !== checkbox.value);
+            }
+            render();
+        }
+
+        function applyAlertFilter() {
+            filterStatus = ['Low Stock', 'Need Replaced'];
+            sortKey = 'status';
+            sortDir = 'desc'; // Bad on top
+            render();
+        }
+
+        function setCategory(cat) {
+            currentCat = cat;
             render();
         }
 
         function updateQty(id, delta) {
             const item = inventory.find(i => i.id === id);
-            if (item.qty + delta < 0) return;
-            item.qty += delta;
+            if (item.qty + delta >= 0) item.qty += delta;
+            saveToLocal();
             render();
         }
 
         function removeItem(id) {
-            if (confirm("Delete this asset?")) {
+            if (confirm("Delete this item?")) {
                 inventory = inventory.filter(i => i.id !== id);
-                render();
-            }
-        }
-
-        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-        function addItem() {
-            const name = document.getElementById('m-name').value;
-            if (!name) return alert("Name required");
-            const type = document.getElementById('m-track-type').value;
-            const qty = parseInt(document.getElementById('m-qty').value) || 0;
-            const cost = parseFloat(document.getElementById('m-cost').value) || 0;
-            const cat = document.getElementById('m-cat').value;
-            const icon = document.getElementById('m-icon').value.trim() || '📦';
-            const catPrefix = cat[0];
-            const maxId = inventory.filter(i => i.id.startsWith(catPrefix)).reduce((max, i) => Math.max(max, parseInt(i.id.slice(1))), 0);
-            const newNum = maxId + 1;
-            const id = catPrefix + newNum.toString().padStart(3, '0');
-            const item = { id, name, cat, qty, cost, type, icon, createdAt: Date.now() };
-            if (type === 'use') {
-                item.cond = document.getElementById('m-initial-cond').value;
-            } else {
-                item.thresholds = {
-                    plenty: parseInt(document.getElementById('m-plenty').value),
-                    low: parseInt(document.getElementById('m-low').value)
-                };
-            }
-            inventory.push(item);
-            closeModal();
-            render();
-        }
-
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-
-        function exportData() {
-            const data = JSON.stringify({ inventory, categories }, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Inventory_Backup_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-        }
-
-        function handleImport(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const confirmation = prompt("To protect your current data, type 'DOWNLOAD' to backup first, or cancel to proceed.");
-                if (confirmation === 'DOWNLOAD') exportData();
-                try {
-                    const imported = JSON.parse(event.target.result);
-                    if (imported.inventory && imported.categories) {
-                        inventory = imported.inventory;
-                        categories = imported.categories;
-                        saveToLocal();
-                        render();
-                        alert("Database restored successfully!");
-                    }
-                } catch (err) { alert("Invalid backup file."); }
-            };
-            reader.readAsText(file);
-        }
-
-        function addCategory() {
-            const val = document.getElementById('new-cat-input').value.trim();
-            if (val && !categories.includes(val)) {
-                categories.push(val);
-                document.getElementById('new-cat-input').value = '';
                 saveToLocal();
                 render();
             }
         }
 
-        function deleteCategory(cat) {
-            const confirmText = prompt(`Are you sure? Items in "${cat}" will be deleted. Type 'DELETE' to confirm.`);
-            if (confirmText === 'DELETE') {
-                categories = categories.filter(c => c !== cat);
-                inventory = inventory.filter(i => i.cat !== cat);
+        function promptBulkDelete() {
+            const confirm = prompt("Delete selected items? Type DELETE to confirm.");
+            if (confirm === 'DELETE') {
+                inventory = inventory.filter(i => !selectedItems.includes(i.id));
+                selectedItems = [];
                 saveToLocal();
+                closeBulkModal();
                 render();
             }
         }
 
-        function editCategory(oldCat) {
-            const newCat = prompt("New name for category:", oldCat);
-            if (newCat && newCat !== oldCat && !categories.includes(newCat)) {
-                categories = categories.map(c => c === oldCat ? newCat : c);
-                inventory.forEach(i => { if (i.cat === oldCat) i.cat = newCat; });
+        function promptBulkTransfer() {
+            const confirm = prompt("Transfer selected items? Type TRANSFER to confirm.");
+            if (confirm === 'TRANSFER') {
+                const transferList = document.getElementById('transfer-cat-list');
+                transferList.innerHTML = categories.map(c => `<button onclick="executeBulkTransfer('${c}')" class="w-full bg-indigo-100 text-indigo-600 font-bold py-3 rounded-2xl mb-2">${c}</button>`).join('');
+                document.getElementById('bulk-modal').classList.add('hidden');
+                document.getElementById('transfer-select-modal').classList.remove('hidden');
+            }
+        }
+
+        function executeBulkTransfer(targetCat) {
+            if (confirm("Confirm transfer to " + targetCat + "?")) {
+                inventory.forEach(i => {
+                    if (selectedItems.includes(i.id)) i.cat = targetCat;
+                });
+                selectedItems = [];
                 saveToLocal();
+                closeTransferSelect();
                 render();
             }
         }
 
-        function toggleSort(key) {
-            if (sortKey === key) {
-                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortKey = key;
-                sortDir = 'asc';
-            }
-            render();
+        function closeBulkModal() {
+            document.getElementById('bulk-modal').classList.add('hidden');
+        }
+
+        function closeTransferSelect() {
+            document.getElementById('transfer-select-modal').classList.add('hidden');
+        }
+
+        function toggleCheckbox(id) {
+            if (selectedItems.includes(id)) selectedItems = selectedItems.filter(s => s !== id);
+            else selectedItems.push(id);
+            if (selectedItems.length > 0) document.getElementById('bulk-modal').classList.remove('hidden');
+            else closeBulkModal();
         }
 
         function render() {
-            // Category Bar
+            searchTerm = document.getElementById('search-input').value.toLowerCase();
             const catBar = document.getElementById('category-bar');
             catBar.innerHTML = '';
-            ['All', ...categories].forEach(c => {
+            const allCats = ['All', ...categories];
+            allCats.forEach(c => {
                 const btn = document.createElement('button');
-                btn.onclick = () => setCategory(c);
-                btn.className = `px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${currentCat === c ? 'active-tab' : 'text-slate-500 hover:text-slate-900'}`;
                 btn.textContent = c === 'All' ? 'All Items' : c;
+                btn.onclick = () => setCategory(c);
+                btn.className = `filter-btn px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-900 transition-all ${currentCat === c ? 'active-tab' : ''}`;
                 catBar.appendChild(btn);
             });
+            catBar.appendChild(document.createElement('button'));
+            const resetBtn = document.createElement('button');
+            resetBtn.textContent = 'Original Order';
+            resetBtn.onclick = resetSort;
+            resetBtn.className = 'px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-900 transition-all';
+            catBar.appendChild(resetBtn);
 
-            // Category Dropdown in Add Modal
-            document.getElementById('m-cat').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-            // Category List in Settings
-            document.getElementById('category-list').innerHTML = categories.map(c => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <span class="text-xs font-bold text-slate-700">${c}</span>
-                    <div class="flex gap-2">
-                        <button onclick="editCategory('${c}')" class="text-blue-500 hover:text-blue-700 text-xs">Edit</button>
-                        <button onclick="deleteCategory('${c}')" class="text-rose-400 hover:text-rose-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                    </div>
-                </div>
-            `).join('');
-
-            const search = document.getElementById('search-input').value.toLowerCase();
-            let filtered = inventory.filter(i => (currentCat === 'All' || i.cat === currentCat) && i.name.toLowerCase().includes(search));
+            let filtered = inventory.filter(i => (currentCat === 'All' || i.cat === currentCat));
+            if (searchTerm) filtered = filtered.filter(i => i.name.toLowerCase().includes(searchTerm));
+            if (filterStatus.length > 0) filtered = filtered.filter(i => filterStatus.includes(getStockStatus(i)));
+            if (filterPrice.length > 0) filtered = filtered.filter(i => filterPrice.some(r => {
+                const [min, max] = r.split('-').map(Number);
+                const value = i.cost;
+                return value >= min && (isNaN(max) ? true : value < max);
+            }));
 
             // Sort
-            filtered = [...filtered];
-            if (sortKey === 'original') {
-                filtered.sort((a, b) => a.createdAt - b.createdAt);
-            } else if (sortKey === 'name') {
-                filtered.sort((a, b) => sortDir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
-            } else if (sortKey === 'status') {
-                const order = ['Plenty', 'Very Good', 'Adequate', 'Good', 'Used', 'Low Stock', 'Need Replaced'];
-                filtered.sort((a, b) => {
-                    const sa = order.indexOf(getStockStatus(a));
-                    const sb = order.indexOf(getStockStatus(b));
-                    return sortDir === 'asc' ? sa - sb : sb - sa;
-                });
-            } else if (sortKey === 'qty') {
-                filtered.sort((a, b) => sortDir === 'asc' ? a.qty - b.qty : b.qty - a.qty);
-            } else if (sortKey === 'value') {
-                filtered.sort((a, b) => {
-                    const va = a.qty * a.cost;
-                    const vb = b.qty * b.cost;
-                    return sortDir === 'asc' ? va - vb : vb - va;
-                });
-            }
+            filtered.sort((a, b) => {
+                let va, vb;
+                if (sortKey === 'name') {
+                    va = a.name;
+                    vb = b.name;
+                    return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+                } else if (sortKey === 'status') {
+                    va = getStockStatus(a);
+                    vb = getStockStatus(b);
+                    const order = ['Low Stock', 'Need Replaced', 'Used', 'Adequate', 'Good', 'Plenty', 'Very Good'];
+                    return sortDir === 'asc' ? order.indexOf(va) - order.indexOf(vb) : order.indexOf(vb) - order.indexOf(va);
+                } else if (sortKey === 'qty') {
+                    va = a.qty;
+                    vb = b.qty;
+                } else if (sortKey === 'cost') {
+                    va = a.cost;
+                    vb = b.cost;
+                } else if (sortKey === 'value') {
+                    va = a.qty * a.cost;
+                    vb = b.qty * b.cost;
+                } else {
+                    va = a.createdAt;
+                    vb = b.createdAt;
+                }
+                return sortDir === 'asc' ? va - vb : vb - va;
+            });
 
             // Analytics
-            const totalCost = filtered.reduce((sum, i) => sum + i.qty * i.cost, 0).toFixed(2);
+            const totalCost = filtered.reduce((sum, i) => sum + (i.qty * i.cost), 0).toFixed(2);
             const totalItems = filtered.length;
             const alerts = filtered.filter(i => ['Low Stock', 'Need Replaced'].includes(getStockStatus(i))).length;
-            document.getElementById('analytics').innerHTML = `
-                <div class="bg-white p-5 rounded-xl text-center border shadow-sm">
-                    <p class="text-sm font-bold text-slate-500">Total Cost</p>
-                    <p class="text-3xl font-bold text-emerald-600">$${totalCost}</p>
+            document.getElementById('analytics-bar').innerHTML = `
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center cursor-default" onclick="applyAlertFilter()">
+                    <p class="text-sm font-bold text-slate-500 uppercase">Alerts</p>
+                    <p class="text-2xl font-bold text-yellow-600">${alerts}</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl text-center border shadow-sm">
-                    <p class="text-sm font-bold text-slate-500">Items</p>
-                    <p class="text-3xl font-bold text-blue-600">${totalItems}</p>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <p class="text-sm font-bold text-slate-500 uppercase">Items</p>
+                    <p class="text-2xl font-bold text-blue-600">${totalItems}</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl text-center border shadow-sm cursor-pointer" onclick="setAlertFilter()">
-                    <p class="text-sm font-bold text-slate-500">Alerts</p>
-                    <p class="text-3xl font-bold text-yellow-600">${alerts}</p>
+                <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                    <p class="text-sm font-bold text-slate-500 uppercase">Total Cost</p>
+                    <p class="text-2xl font-bold text-emerald-600">$${totalCost}</p>
                 </div>
             `;
 
-            // Desktop Table
-            let tbody = '';
+            // Table Body
+            const body = document.getElementById('inventory-body');
+            body.innerHTML = '';
             filtered.forEach(item => {
                 const status = getStockStatus(item);
                 const style = getBadgeStyle(status);
-                const highlighted = item.name.replace(new RegExp(search, 'gi'), m => `<span class="bg-yellow-200 px-1 rounded">${m}</span>`);
-                const totalValue = (item.qty * item.cost).toLocaleString(undefined, {minimumFractionDigits: 2});
-                tbody += `
-                    <tr class="list-row group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-xl border border-slate-100">${item.icon}</div>
-                                <div>
-                                    <p class="font-bold text-slate-800">${highlighted}</p>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.cat} • ID: ${item.id}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="openEditStatus('${item.id}', event)" class="status-badge border ${style} transition-transform ${isManageMode ? 'hover:scale-105 active:scale-95 shadow-sm' : 'cursor-default'}">
-                                ${status}
-                                ${isManageMode ? `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>` : ''}
-                            </button>
-                        </td>
-                        <td class="px-6 py-4 text-center font-medium text-slate-500">$${item.cost.toFixed(2)}</td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-3">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600">-</button>` : ''}
-                                <span class="text-sm font-black text-slate-900 w-8 text-center">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-900 text-white hover:bg-black flex items-center justify-center font-bold">+</button>` : ''}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-bold text-slate-700">$${totalValue}</p>
-                            ${isManageMode ? `<button onclick="removeItem('${item.id}')" class="text-rose-400 hover:text-rose-600 p-1"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : ''}
-                        </td>
-                    </tr>
-                `;
-            });
-            document.getElementById('inventory-body').innerHTML = tbody;
-
-            // Mobile Cards
-            let mobileHtml = '';
-            filtered.forEach(item => {
-                const status = getStockStatus(item);
-                const style = getBadgeStyle(status);
-                const highlighted = item.name.replace(new RegExp(search, 'gi'), m => `<span class="bg-yellow-200 px-1 rounded">${m}</span>`);
-                const totalValue = (item.qty * item.cost).toLocaleString(undefined, {minimumFractionDigits: 2});
-                mobileHtml += `
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
-                        <div class="flex items-start gap-3 mb-3">
-                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl border border-slate-100">${item.icon}</div>
-                            <div class="flex-1">
-                                <p class="font-bold text-slate-900">${highlighted}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">${item.cat} • ${item.id}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xs font-black text-slate-900">$${totalValue}</p>
-                                <p class="text-[9px] text-slate-400 font-bold">$${item.cost.toFixed(2)}/ea</p>
+                const nameHtml = searchTerm ? item.name.replace(new RegExp(searchTerm, 'gi'), match => `<span class="highlight">${match}</span>`) : item.name;
+                const row = document.createElement('tr');
+                row.className = 'list-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-xl border border-slate-100">${item.icon}</div>
+                            <div>
+                                <p class="font-bold text-slate-800">${nameHtml}</p>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.cat} • ID: ${item.id}</p>
                             </div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="status-badge ${style}">${status}</span>
-                            <div class="flex items-center bg-slate-100 rounded-xl p-1 gap-3">
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)" class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-bold text-slate-600">-</button>` : ''}
-                                <span class="text-sm font-black text-slate-900 min-w-[20px] text-center">${item.qty}</span>
-                                ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)" class="w-8 h-8 rounded-lg bg-slate-900 text-white shadow-sm flex items-center justify-center font-bold">+</button>` : ''}
-                            </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="status-badge ${style}">${status}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center font-medium text-slate-500">$${item.cost.toFixed(2)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center gap-3">
+                            ${isManageMode ? `<button onclick="updateQty('${item.id}', -1)">-</button>` : ''}
+                            <span class="text-sm font-black text-slate-900">${item.qty}</span>
+                            ${isManageMode ? `<button onclick="updateQty('${item.id}', 1)">+</button>` : ''}
                         </div>
-                        ${isManageMode ? `<button onclick="removeItem('${item.id}')" class="absolute -top-2 -right-2 w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
-                    </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <p class="font-bold text-slate-700">$${ (item.qty * item.cost).toFixed(2) }</p>
+                        ${isManageMode ? `<input type="checkbox" onchange="toggleCheckbox('${item.id}')" ${selectedItems.includes(item.id) ? 'checked' : ''}>` : ''}
+                    </td>
                 `;
+                body.appendChild(row);
             });
-            document.getElementById('inventory-mobile').innerHTML = mobileHtml;
         }
 
-        function setAlertFilter() {
-            // Note: No multi-filter implemented yet, but sets to alerts
-            alert("Filter set to Low Stock / Need Replaced (full multi-filter coming soon)");
+        window.onload = () => {
+            updateSortIndicators();
             render();
-        }
-
-        window.onload = () => { setCategory('All'); render(); };
+        };
     </script>
 </body>
 </html>
