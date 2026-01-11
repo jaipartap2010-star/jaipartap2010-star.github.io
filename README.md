@@ -1,5 +1,5 @@
 # jaipartap2010-star.github.io
-#Inventory Management System
+#Grok Inventory Management System
 
 [Debugged Inventory Management System](Inventory_GPTGrok_Debugged.html)
 
